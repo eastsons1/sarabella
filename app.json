@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Sarabella",
+    "slug": "Sarabella",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/Sarabella.png",
+    "splash": {
+      "image": "./assets/logo1.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#03256C"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.Sarabella",
+      "buildNumber": "1.0.23"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Sarabella.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.Sarabella"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "538d12f3-7de4-415f-9e05-b1496da57feb"
+      }
+    }
+  }
+}

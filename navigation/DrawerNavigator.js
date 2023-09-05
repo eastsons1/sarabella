@@ -5,7 +5,10 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  Alert,RefreshControl, StatusBar, Platform
+  Alert,
+  RefreshControl,
+  StatusBar,
+  Platform,
 } from "react-native";
 import {
   createDrawerNavigator,
@@ -13,8 +16,13 @@ import {
   DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { StackActions } from '@react-navigation/native';
-import { getFocusedRouteNameFromRoute, useIsFocused, useFocusEffect, CommonActions } from "@react-navigation/native";
+import { StackActions } from "@react-navigation/native";
+import {
+  getFocusedRouteNameFromRoute,
+  useIsFocused,
+  useFocusEffect,
+  CommonActions,
+} from "@react-navigation/native";
 import Icon from "react-native-vector-icons/Ionicons";
 import Constants from "expo-constants";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -52,7 +60,7 @@ const Drawer = createDrawerNavigator();
 
 const CustomDrawerContent = (props) => {
   const [show, setShow] = useState(false);
-  const [showReport, setShowReport]=useState(false)
+  const [showReport, setShowReport] = useState(false);
   const [id, setId] = useState(undefined);
   const [name, setName] = useState(undefined);
   const [lName, setLName] = useState(undefined);
@@ -66,14 +74,14 @@ const CustomDrawerContent = (props) => {
   const [idFromLogin, setIdFromLogin] = useState();
   const [refreshing, setRefreshing] = useState(false);
 
-  const [volumeReport, setVolumeReport]=useState(undefined)
-  const [CReport, setCReport]=useState(undefined);
-  const [SReport, setSReport]=useState(undefined);
-  const [QReport, setQReport]=useState(undefined);
+  const [volumeReport, setVolumeReport] = useState(undefined);
+  const [CReport, setCReport] = useState(undefined);
+  const [SReport, setSReport] = useState(undefined);
+  const [QReport, setQReport] = useState(undefined);
 
   const isFocused = useIsFocused();
 
-  const setDetails=async()=>{
+  const setDetails = async () => {
     setNameLogin(await AsyncStorage.getItem("first_name"));
     setLastName(await AsyncStorage.getItem("last_name"));
     setPImage(await AsyncStorage.getItem("profile_image"));
@@ -83,19 +91,19 @@ const CustomDrawerContent = (props) => {
     setCReport(await AsyncStorage.getItem("CReport"));
     setSReport(await AsyncStorage.getItem("SReport"));
     setQReport(await AsyncStorage.getItem("QReport"));
-  }
+  };
 
-  useEffect( () => {
+  useEffect(() => {
     // console.log("DrawerNav useffect")
     // console.log("DrawerNav ifFocused: " + isFocused)
-    setDetails()
+    setDetails();
     // if(isFocused){
     // console.log("2");
-    
-    // }
-  }, [idFromLogin,nameLogin, lastName, pImage, userType, setDetails]);
 
-  const onRefresh = useCallback(async() => {
+    // }
+  }, [idFromLogin, nameLogin, lastName, pImage, userType, setDetails]);
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     setNameLogin(await AsyncStorage.getItem("first_name"));
     setLastName(await AsyncStorage.getItem("last_name"));
@@ -105,7 +113,7 @@ const CustomDrawerContent = (props) => {
     console.log("user type=" + userType);
     console.log("name in 2=" + nameLogin);
     setRefreshing(false);
-  }, [idFromLogin,nameLogin, lastName, pImage, userType]);
+  }, [idFromLogin, nameLogin, lastName, pImage, userType]);
 
   //AsyncStorage.getItem("user_details")
   //console.log('user_details='+JSON.stringify(JSON.stringify(AsyncStorage.getItem("user_details"))))
@@ -113,248 +121,369 @@ const CustomDrawerContent = (props) => {
   // console.log('lname='+lName)
 
   // const abc=()=>{
-    
+
   //   return(<View><Text>hi</Text></View>)
   //    //return(<View><Text>Last try</Text></View>)
   // }
 
   return (
     <>
-    <StatusBar translucent barStyle='default'/>
-    <View style={{ flex: 1 }}>
-      {isFocused?(
-      <View style={{flex:1}}>
-        {/* {abc()} */}
-        <ScrollView refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }>
-        <View style={{backgroundColor:'#102799', paddingTop:Platform.OS=='ios'?Constants.statusBarHeight:40}}>
-          <TouchableOpacity
-            onPress={() => props.navigation.navigate("Profile")}
-            style={{ alignItems: "center" }}
-          >
-            
-            {pImage == "" || pImage == undefined || pImage == null ? (
-              <Icon name="person-circle-outline" size={100} color={'white'} />
-            ) : (
-              <Image
-                source={{
-                  uri:
-                    `https://refuel.site/projects/sarabella/UPLOAD_file/` +
-                    pImage,
-                }}
+      <StatusBar translucent barStyle="default" />
+      <View style={{ flex: 1 }}>
+        {isFocused ? (
+          <View style={{ flex: 1 }}>
+            {/* {abc()} */}
+            <ScrollView
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+            >
+              <View
                 style={{
-                  width: 100,
-                  height: 100,
-                  overflow: "hidden",
-                  borderRadius: 50,
+                  backgroundColor: "#102799",
+                  paddingTop:
+                    Platform.OS == "ios" ? Constants.statusBarHeight : 40,
                 }}
-                resizeMode="cover"
-              />
-            )}
-            <Text style={{ fontWeight: "bold", marginVertical: 10, color:'white' }}>
-              {nameLogin} {lastName}
-            </Text>
-            {/* <Text>Last try={lastTry!=undefined?lastTry:null}</Text> */}
-          </TouchableOpacity>
-        </View>
-        <Divider style={{ borderWidth: 1 }} />
-        {/* <DrawerItemList {...props} /> */}
+              >
+                <TouchableOpacity
+                  onPress={() => props.navigation.navigate("Profile")}
+                  style={{ alignItems: "center" }}
+                >
+                  {pImage == "" || pImage == undefined || pImage == null ? (
+                    <Icon
+                      name="person-circle-outline"
+                      size={100}
+                      color={"white"}
+                    />
+                  ) : (
+                    <Image
+                      source={{
+                        uri:
+                          `https://refuel.site/projects/sarabella/UPLOAD_file/` +
+                          pImage,
+                      }}
+                      style={{
+                        width: 100,
+                        height: 100,
+                        overflow: "hidden",
+                        borderRadius: 50,
+                      }}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <Text
+                    style={{
+                      fontWeight: "bold",
+                      marginVertical: 10,
+                      color: "white",
+                    }}
+                  >
+                    {nameLogin} {lastName}
+                  </Text>
+                  {/* <Text>Last try={lastTry!=undefined?lastTry:null}</Text> */}
+                </TouchableOpacity>
+              </View>
+              <Divider style={{ borderWidth: 1 }} />
+              {/* <DrawerItemList {...props} /> */}
 
-        {userType == "Users" ? (
+              {userType == "Users" ? (
+                <View>
+                  <DrawerItem
+                    label={({}) => (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name={
+                            show == false ? "add-outline" : "remove-outline"
+                          }
+                          size={18}
+                          style={{ marginRight: 15 }}
+                        />
+                        <Text>Schedule</Text>
+                      </View>
+                    )}
+                    onPress={() => setShow(!show)}
+                    style={{}}
+                  />
+                  {show == true ? (
+                    <View style={{}}>
+                      <DrawerItem
+                        label={({}) => <Text>Create Schedule</Text>}
+                        onPress={() => {
+                          props.navigation.navigate("CreateSchedule");
+                        }}
+                        style={{ marginLeft: 70 }}
+                      />
+                      <DrawerItem
+                        label={({}) => <Text>View Schedule</Text>}
+                        onPress={() => {
+                          props.navigation.navigate("ViewSchedule");
+                          // apiCall();
+                        }}
+                        style={{ marginLeft: 70 }}
+                      />
+                    </View>
+                  ) : null}
+                  <DrawerItem
+                    onPress={() => {
+                      props.navigation.navigate("ViewInvoice");
+                    }}
+                    label={({}) => <Text>View Invoice</Text>}
+                  />
+                  <DrawerItem
+                    onPress={() => {
+                      props.navigation.navigate("OrderStatus");
+                    }}
+                    label={({}) => <Text>Order Status</Text>}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Product Gallary</Text>}
+                    onPress={() => {}}
+                  />
+                </View>
+              ) : null}
+
+              {userType == "Admin" ? (
+                <View>
+                  <DrawerItem
+                    label={({}) => (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name={
+                            show == false ? "add-outline" : "remove-outline"
+                          }
+                          size={18}
+                          style={{ marginRight: 15 }}
+                        />
+                        <Text>Schedule</Text>
+                      </View>
+                    )}
+                    onPress={() => setShow(!show)}
+                    style={{}}
+                  />
+                  {show == true ? (
+                    <View style={{}}>
+                      <DrawerItem
+                        label={({}) => <Text>View All Schedule</Text>}
+                        onPress={() => {
+                          props.navigation.navigate("ViewAllSchedule");
+                        }}
+                        style={{ marginLeft: 70 }}
+                      />
+                      <DrawerItem
+                        style={{ marginLeft: 70 }}
+                        onPress={() =>
+                          props.navigation.navigate("CloseSchedule")
+                        }
+                        label={({}) => <Text>Close Schedule</Text>}
+                      />
+                    </View>
+                  ) : null}
+                  <DrawerItem
+                    label={({}) => <Text>View All Jobs</Text>}
+                    onPress={() => props.navigation.navigate("ViewJobs")}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>View All Quotes</Text>}
+                    onPress={() => props.navigation.navigate("ViewAllQuotes")}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Quotes Payment Status</Text>}
+                    onPress={() => props.navigation.navigate("PaymentStatus")}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>View All Orders</Text>}
+                    onPress={() => props.navigation.navigate("ViewAllOrders")}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Product Gallary</Text>}
+                    onPress={() => {}}
+                  />
+                  <DrawerItem
+                    label={({}) => (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Icon
+                          name={
+                            showReport == false
+                              ? "add-outline"
+                              : "remove-outline"
+                          }
+                          size={18}
+                          style={{ marginRight: 15 }}
+                        />
+                        <Text>Report</Text>
+                      </View>
+                    )}
+                    onPress={() => setShowReport(!showReport)}
+                    style={{}}
+                  />
+                  {showReport == true ? (
+                    <View style={{}}>
+                      <DrawerItem
+                        label={({}) => <Text>View Report</Text>}
+                        onPress={() => {
+                          props.navigation.navigate("ViewReport", {
+                            volumeReport: volumeReport,
+                            CReport: CReport,
+                            SReport: SReport,
+                            QReport: QReport,
+                          });
+                        }}
+                        style={{ marginLeft: 70 }}
+                      />
+                      <DrawerItem
+                        style={{ marginLeft: 70 }}
+                        onPress={() => props.navigation.navigate("Estimate")}
+                        label={({}) => <Text>Order Report</Text>}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {userType == "Agents" ? (
+                <View style={{}}>
+                  <DrawerItem
+                    label={({}) => <Text>Home</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("Home");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Customers</Text>}
+                    options={{ unmountOnBlur: true }}
+                    onPress={() => {
+                      props.navigation.navigate("CustomerList");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Add New Customer</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("CreateCustomer");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Add Measurement</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("CustomerList");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>View Jobs</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("JobListing");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>View Quotesqq</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("ViewAllQuotes");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Product Gallary</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("ProductGallary");
+                    }}
+                  />
+                </View>
+              ) : null}
+
+              {userType == "Manufacturing Units" ? (
+                <View>
+                  <DrawerItem
+                    label={({}) => <Text>Orders</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("Orders");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Work Status</Text>}
+                    onPress={() => {
+                      props.navigation.navigate("WorkStatus");
+                    }}
+                  />
+                  <DrawerItem
+                    label={({}) => <Text>Product Gallary</Text>}
+                    onPress={() => {}}
+                  />
+                </View>
+              ) : null}
+            </ScrollView>
+            <View style={{ marginBottom: "20%" }}>
+              <Text
+                style={{ textAlign: "center" }}
+                onPress={async () => {
+                  console.log("logout function");
+                  let arr = [];
+                  arr = await AsyncStorage.getAllKeys();
+                  const keys = await AsyncStorage.getAllKeys();
+
+                  Alert.alert("", "Do you want to logout?", [
+                    {
+                      text: "Ok",
+                      style: "cancel",
+                      onPress: async () => {
+                        const result = await AsyncStorage.multiRemove(keys);
+                        console.log("result in logout=" + result);
+                        await AsyncStorage.removeItem("loginStatus");
+                        await AsyncStorage.removeItem("user_id");
+                        await AsyncStorage.removeItem("first_name");
+                        await AsyncStorage.removeItem("last_name");
+                        await AsyncStorage.removeItem("profile_image");
+                        await AsyncStorage.removeItem("user_type");
+                        props.navigation.dispatch(
+                          CommonActions.reset({ routes: [{ name: "Login" }] })
+                        );
+                        // props.navigation.navigate("Login");
+                      },
+                    },
+                    { text: "Cancel", style: "cancel" },
+                  ]);
+                }}
+              >
+                Logout
+              </Text>
+            </View>
+          </View>
+        ) : (
           <View>
-            <DrawerItem
-              label={({}) => (
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon
-                    name={show == false ? "add-outline" : "remove-outline"}
-                    size={18}
-                    style={{ marginRight: 15 }}
-                  />
-                  <Text>Schedule</Text>
-                </View>
-              )}
-              onPress={() => setShow(!show)}
-              style={{}}
-            />
-            {show == true ? (
-              <View style={{}}>
-                <DrawerItem
-                  label={({}) => <Text>Create Schedule</Text>}
-                  onPress={() => {
-                    props.navigation.navigate("CreateSchedule");
-                  }}
-                  style={{ marginLeft: 70 }}
-                />
-                <DrawerItem
-                  label={({}) => <Text>View Schedule</Text>}
-                  onPress={() => {props.navigation.navigate("ViewSchedule")
-                    // apiCall();
-                  }}
-                  style={{ marginLeft: 70 }}
-                />
-              </View>
-            ) : null}
-            <DrawerItem onPress={()=>{props.navigation.navigate("ViewInvoice")}} label={({})=><Text>View Invoice</Text>} />
-            <DrawerItem onPress={()=>{props.navigation.navigate("OrderStatus")}} label={({})=><Text>Order Status</Text>} />
-            <DrawerItem label={({})=><Text>Product Gallary</Text>} onPress={()=>{}} />
+            <Text>unfocused</Text>
           </View>
-        ) : null}
-
-        {userType == "Admin" ? (
-          <View >
-            <DrawerItem
-              label={({}) => (
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon
-                    name={show == false ? "add-outline" : "remove-outline"}
-                    size={18}
-                    style={{ marginRight: 15 }}
-                  />
-                  <Text>Schedule</Text>
-                </View>
-              )}
-              onPress={() => setShow(!show)}
-              style={{}}
-            />
-            {show == true ? (
-              <View style={{}}>
-                <DrawerItem
-                  label={({}) => <Text>View All Schedule</Text>}
-                  onPress={() => {
-                    props.navigation.navigate("ViewAllSchedule");
-                  }}
-                  style={{ marginLeft: 70 }}
-                />
-                <DrawerItem style={{ marginLeft: 70 }} onPress={()=>props.navigation.navigate("CloseSchedule")} label={({})=><Text>Close Schedule</Text>}/>
-              </View>
-            ) : null}
-            <DrawerItem label={({})=><Text>View All Jobs</Text>} onPress={()=>props.navigation.navigate("ViewJobs")} />
-            <DrawerItem label={({})=><Text>View All Quotes</Text>} onPress={()=>props.navigation.navigate("ViewAllQuotes")} />
-            <DrawerItem label={({})=><Text>Quotes Payment Status</Text>} onPress={()=>props.navigation.navigate("PaymentStatus")} />
-            <DrawerItem label={({})=><Text>View All Orders</Text>} onPress={()=>props.navigation.navigate("ViewAllOrders")} />
-            <DrawerItem label={({})=><Text>Product Gallary</Text>} onPress={()=>{}} />
-            <DrawerItem
-              label={({}) => (
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Icon
-                    name={showReport == false ? "add-outline" : "remove-outline"}
-                    size={18}
-                    style={{ marginRight: 15 }}
-                  />
-                  <Text>Report</Text>
-                </View>
-              )}
-              onPress={() => setShowReport(!showReport)}
-              style={{}}
-            />
-            {showReport == true ? (
-              <View style={{}}>
-                <DrawerItem
-                  label={({}) => <Text>View Report</Text>}
-                  onPress={() => {
-                    props.navigation.navigate("ViewReport", {volumeReport:volumeReport, CReport:CReport, SReport:SReport, QReport:QReport});
-                  }}
-                  style={{ marginLeft: 70 }}
-                />
-                <DrawerItem style={{ marginLeft: 70 }} onPress={()=>props.navigation.navigate("Estimate")} label={({})=><Text>Order Report</Text>}/>
-              </View>
-            ) : null}
-          </View>
-        ) : null}
-
-        {userType == "Agents" ? (
-          <View style={{}}>
-          <DrawerItem label={({}) => <Text>Home</Text>}  onPress={() => { props.navigation.navigate("Home");}}/>
-          <DrawerItem label={({}) => <Text>Customers</Text>}  options={{unmountOnBlur:true}} onPress={() => { props.navigation.navigate("CustomerList");}}/>
-          <DrawerItem label={({}) => <Text>Add New Customer</Text>}  onPress={() => { props.navigation.navigate("CreateCustomer");}}/>
-          <DrawerItem label={({}) => <Text>Add Measurement</Text>}  onPress={() => { props.navigation.navigate("CustomerList");}}/>
-          <DrawerItem label={({}) => <Text>View Jobs</Text>}  onPress={() => { props.navigation.navigate("JobListing");}}/>
-          <DrawerItem label={({}) => <Text>View Quotes</Text>}  onPress={() => { props.navigation.navigate("ViewAllQuotes");}}/>
-          <DrawerItem label={({})=><Text>Product Gallary</Text>} onPress={()=>{}} />
-          </View>
-        ) : null}
-
-        {userType == "Manufacturing Units" ? (
-          <View>
-            <DrawerItem
-              label={({}) => <Text>Orders</Text>}
-              onPress={() => {
-                props.navigation.navigate("Orders");
-              }}
-            />
-            <DrawerItem
-              label={({}) => <Text>Work Status</Text>}
-              onPress={() => {
-                props.navigation.navigate("WorkStatus");
-              }}
-            />
-            <DrawerItem label={({})=><Text>Product Gallary</Text>} onPress={()=>{}} />
-          </View>
-        ) : null}
-      </ScrollView>
-      <View style={{ marginBottom: "20%",}}>
-        <Text
-          style={{ textAlign: "center" }}
-          onPress={async () => {console.log('logout function');
-            let arr=[];
-            arr=await AsyncStorage.getAllKeys();
-            const keys =await AsyncStorage.getAllKeys();
-            
-            Alert.alert("", "Do you want to logout?", [
-              {
-                text: "Ok",
-                style: "cancel",
-                onPress: async () => {
-                  const result=await AsyncStorage.multiRemove(keys)
-                  console.log('result in logout='+result)
-                  await AsyncStorage.removeItem('loginStatus')
-                  await AsyncStorage.removeItem('user_id')
-                  await AsyncStorage.removeItem('first_name')
-                  await AsyncStorage.removeItem('last_name')
-                  await AsyncStorage.removeItem('profile_image')
-                  await AsyncStorage.removeItem('user_type')
-                  props.navigation.dispatch(CommonActions.reset({routes:[{name:'Login'}]}))
-                  // props.navigation.navigate("Login");
-                },
-              },
-              { text: "Cancel", style: "cancel" },
-            ]);
-          }}
-        >
-          Logout
-        </Text>
-        </View>
+        )}
       </View>
-      ):(<View><Text>unfocused</Text></View>)}
-      
-    </View>
     </>
   );
 };
 
 const DrawerNavigator = (props) => {
-
   const [idFromLogin, setIdFromLogin] = useState();
 
   const isFocused = useIsFocused();
 
-  const detail=async()=>{
-    setIdFromLogin(await AsyncStorage.getItem('user_id'))
-  }
+  const detail = async () => {
+    setIdFromLogin(await AsyncStorage.getItem("user_id"));
+  };
 
   useEffect(() => {
-    if(isFocused){
-      detail()
-      console.log("DrawerNavigator useEffect")
+    if (isFocused) {
+      detail();
+      console.log("DrawerNavigator useEffect");
     }
-  }, [idFromLogin, detail])
-  console.log('inside drawer navigator component='+idFromLogin)
+  }, [idFromLogin, detail]);
+  console.log("inside drawer navigator component=" + idFromLogin);
 
-  return (
-    isFocused?<Drawer.Navigator
-      useLegacyImplementation 
-      drawerContent={(props) => isFocused?<CustomDrawerContent {...props} />:null}
+  return isFocused ? (
+    <Drawer.Navigator
+      useLegacyImplementation
+      drawerContent={(props) =>
+        isFocused ? <CustomDrawerContent {...props} /> : null
+      }
       screenOptions={{
         drawerActiveTintColor: null,
         drawerActiveBackgroundColor: null,
@@ -418,7 +547,7 @@ const DrawerNavigator = (props) => {
       <Drawer.Screen
         name="Main"
         component={BottomTabNavigator}
-        options={({ route, navigation }) =>{
+        options={({ route, navigation }) => {
           const routeName = getFocusedRouteNameFromRoute(route);
           switch (routeName) {
             case "Home ": {
@@ -475,7 +604,25 @@ const DrawerNavigator = (props) => {
                 headerTitle: "Customer List",
                 headerStyle: { backgroundColor: Colors.mainColor },
                 headerTintColor: "white",
-                headerRight:()=>(<TouchableOpacity onPress={()=>{navigation.navigate('CreateCustomer')}}><View style={{paddingRight:10}}><Text style={{color:'white', fontSize:18, fontWeight:'600'}}>Add Customer</Text></View></TouchableOpacity>)
+                headerRight: () => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("CreateCustomer");
+                    }}
+                  >
+                    <View style={{ paddingRight: 10 }}>
+                      <Text
+                        style={{
+                          color: "white",
+                          fontSize: 18,
+                          fontWeight: "600",
+                        }}
+                      >
+                        Add Customer
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ),
               };
             }
             case "CreateCustomer": {
@@ -496,7 +643,7 @@ const DrawerNavigator = (props) => {
               return {
                 headerTitle: "Add Measurement",
                 headerStyle: { backgroundColor: Colors.mainColor },
-                headerTintColor: "white", 
+                headerTintColor: "white",
                 // unmountOnBlur: true
               };
             }
@@ -557,6 +704,13 @@ const DrawerNavigator = (props) => {
                 headerTintColor: "white",
               };
             }
+            case "ProductGallary": {
+              return {
+                headerTitle: "Photo Gallary",
+                headerStyle: { backgroundColor: Colors.mainColor },
+                headerTintColor: "white",
+              };
+            }
             case "ViewAllOrders": {
               return {
                 headerTitle: "View All Orders",
@@ -570,7 +724,8 @@ const DrawerNavigator = (props) => {
                 headerStyle: { backgroundColor: Colors.mainColor },
                 headerTintColor: "white",
               };
-            }  case "QuoteDetails": {
+            }
+            case "QuoteDetails": {
               return {
                 headerTitle: "Quote Details",
                 headerStyle: { backgroundColor: Colors.mainColor },
@@ -583,7 +738,8 @@ const DrawerNavigator = (props) => {
                 headerStyle: { backgroundColor: Colors.mainColor },
                 headerTintColor: "white",
               };
-            }case "IndividualOrder": {
+            }
+            case "IndividualOrder": {
               return {
                 headerTitle: "Individual Order",
                 headerStyle: { backgroundColor: Colors.mainColor },
@@ -665,8 +821,8 @@ const DrawerNavigator = (props) => {
                 // headerLeftLabelVisible: () => false,
                 // headerLeft: () => null,
                 // headerShown: false,
-                swipeEnabled:false,
-                swipeEdgeWidth:0
+                swipeEnabled: false,
+                swipeEdgeWidth: 0,
               };
             }
             case "Estimate": {
@@ -749,8 +905,8 @@ const DrawerNavigator = (props) => {
         options={{ headerShown: true }}
       /> */}
       {/* <Drawer.Screen name="AnotherScreen" component={AnotherScreenNavigator} /> */}
-    </Drawer.Navigator>:null
-  );
+    </Drawer.Navigator>
+  ) : null;
 };
 
 export default DrawerNavigator;

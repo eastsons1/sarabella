@@ -1,12 +1,13 @@
 import React from "react";
-import {View, Text, TouchableOpacity} from 'react-native'
+import { View, Text, TouchableOpacity } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
-import Icon from 'react-native-vector-icons/Ionicons'
+import Icon from "react-native-vector-icons/Ionicons";
 
 import {
   // StackNavigator, AnotherScreenNavigator,
-  MainScreen, AgentScreens
+  MainScreen,
+  AgentScreens,
 } from "./Navigator";
 import Search from "../screens/dashboard/Search";
 import SyncData from "../screens/dashboard/SyncData";
@@ -44,15 +45,18 @@ import CloseScheduleDetail from "../screens/dashboard/Admin/CloseScheduleDetail"
 import ViewReport from "../screens/dashboard/Admin/ViewReport";
 import Estimate from "../screens/dashboard/Admin/Estimate";
 import EstimateScheduleDetail from "../screens/dashboard/Admin/EstimateScheduleDetail";
+import ProductGallary from "../screens/dashboard/Agent/ProductGallary";
 
 const BottomTab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   return (
-    <BottomTab.Navigator initialRouteName="Home "  screenOptions={({route, navigation, focused})=>
-     ({unmountOnBlur:false})
-    }
-    // screenOptions={({ route }) => ({})}
+    <BottomTab.Navigator
+      initialRouteName="Home "
+      screenOptions={({ route, navigation, focused }) => ({
+        unmountOnBlur: false,
+      })}
+      // screenOptions={({ route }) => ({})}
     >
       {/* <BottomTab.Screen
         name="MainScreen"
@@ -62,10 +66,20 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({ focused }) =>focused?(<Icon name="home" size={24} />):(<Icon size={22} name="home-outline"/>)
         })}
       /> */}
-      <BottomTab.Screen name="Home " component={MainScreen} options={({ route }) => ({
-          headerShown:false,tabBarLabel:'Home',
-          tabBarIcon: ({ focused }) =>focused?(<Icon name="home" size={24} />):(<Icon size={22} name="home-outline"/>)
-        })} />
+      <BottomTab.Screen
+        name="Home "
+        component={MainScreen}
+        options={({ route }) => ({
+          headerShown: false,
+          tabBarLabel: "Home",
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <Icon name="home" size={24} />
+            ) : (
+              <Icon size={22} name="home-outline" />
+            ),
+        })}
+      />
       {/* <BottomTab.Screen
         name="Search"
         component={Search}
@@ -83,53 +97,285 @@ const BottomTabNavigator = () => {
       <BottomTab.Screen
         name="Profile"
         component={Profile}
-        options={({ route }) => ({headerShown:false,
-          tabBarIcon: ({ focused }) =>focused?(<Icon name="person" size={24} />):(<Icon size={22} name="person-outline"/>)
+        options={({ route }) => ({
+          headerShown: false,
+          tabBarIcon: ({ focused }) =>
+            focused ? (
+              <Icon name="person" size={24} />
+            ) : (
+              <Icon size={22} name="person-outline" />
+            ),
         })}
       />
       <BottomTab.Screen
         name="ViewSchedule"
         component={ViewSchedule}
-        options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
       />
       <BottomTab.Screen
         name="CreateSchedule"
         component={CreateSchedule}
-        options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
       />
-      <BottomTab.Screen name="JobListing" component={JobListing} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="CreateCustomer" component={CreateCustomer} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="CustomerList" component={CustomerList} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="JobDetail" component={JobDetail} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="AddMeasurnment" component={AddMeasurnment} options={({ route }) => (console.log('HOOOO'+JSON.stringify(route)),{tabBarButton:(props)=>null, headerShown:false, 
-        // unmountOnBlur:true
-        // unmountOnBlur:route.name=='AddMeasurnment'?true:false
-        })} />
-      <BottomTab.Screen name="Orders" component={Orders} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="WorkStatus" component={WorkStatus} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewMeasurnment" component={ViewMeasurnment} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="CreateQuote" component={CreateQuote} options={({ route }) => ({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewAllSchedule" component={ViewAllSchedule} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ScheduleDetail" component={ScheduleDetail} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewJobs" component={ViewJobs} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewAllQuotes" component={ViewAllQuotes} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="Invoice" component={Invoice} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="QuoteDetails" component={QuoteDetails} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="PaymentStatus" component={PaymentStatus} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewAllOrders" component={ViewAllOrders} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="IndividualOrder" component={IndividualOrder} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewIndividualJob" component={ViewIndividualJob} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewIndividualOrder" component={ViewIndividualOrder} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="EditMeasurement" component={EditMeasurement} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="EditCustomerMeasurement" component={EditCustomerMeasurement} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="InvoiceCustomer" component={InvoiceCustomer} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewInvoice" component={ViewInvoice} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="OrderStatus" component={OrderStatus} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="CloseSchedule" component={CloseSchedule} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="CloseScheduleDetail" component={CloseScheduleDetail} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="ViewReport" component={ViewReport} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="Estimate" component={Estimate} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
-      <BottomTab.Screen name="EstimateScheduleDetail" component={EstimateScheduleDetail} options={({route})=>({tabBarButton:(props)=>null, headerShown:false})} />
+      <BottomTab.Screen
+        name="JobListing"
+        component={JobListing}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="CreateCustomer"
+        component={CreateCustomer}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="CustomerList"
+        component={CustomerList}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="JobDetail"
+        component={JobDetail}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="AddMeasurnment"
+        component={AddMeasurnment}
+        options={({ route }) => (
+          console.log("HOOOO" + JSON.stringify(route)),
+          {
+            tabBarButton: (props) => null,
+            headerShown: false,
+            // unmountOnBlur:true
+            // unmountOnBlur:route.name=='AddMeasurnment'?true:false
+          }
+        )}
+      />
+      <BottomTab.Screen
+        name="Orders"
+        component={Orders}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="WorkStatus"
+        component={WorkStatus}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewMeasurnment"
+        component={ViewMeasurnment}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="CreateQuote"
+        component={CreateQuote}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewAllSchedule"
+        component={ViewAllSchedule}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ScheduleDetail"
+        component={ScheduleDetail}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewJobs"
+        component={ViewJobs}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewAllQuotes"
+        component={ViewAllQuotes}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ProductGallary"
+        component={ProductGallary}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="Invoice"
+        component={Invoice}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="QuoteDetails"
+        component={QuoteDetails}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="PaymentStatus"
+        component={PaymentStatus}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewAllOrders"
+        component={ViewAllOrders}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="IndividualOrder"
+        component={IndividualOrder}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewIndividualJob"
+        component={ViewIndividualJob}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewIndividualOrder"
+        component={ViewIndividualOrder}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="EditMeasurement"
+        component={EditMeasurement}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="EditCustomerMeasurement"
+        component={EditCustomerMeasurement}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="InvoiceCustomer"
+        component={InvoiceCustomer}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewInvoice"
+        component={ViewInvoice}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="OrderStatus"
+        component={OrderStatus}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="CloseSchedule"
+        component={CloseSchedule}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="CloseScheduleDetail"
+        component={CloseScheduleDetail}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="ViewReport"
+        component={ViewReport}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="Estimate"
+        component={Estimate}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+      <BottomTab.Screen
+        name="EstimateScheduleDetail"
+        component={EstimateScheduleDetail}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
       {/* <BottomTab.Screen name="AgentScreen" component={AgentScreens} options={{tabBarButton:(props)=>null, headerShown:false}} /> */}
       {/* <BottomTab.Screen name='Home' component={StackNavigator} /> */}
       {/* <BottomTab.Screen name='AnotherScreen' component={AnotherScreenNavigator} /> */}

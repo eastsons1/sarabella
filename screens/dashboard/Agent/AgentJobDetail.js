@@ -1,66 +1,49 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import React, { useEffect, useRef,useState } from "react";
+import { View, Text, ScrollView,TouchableOpacity, StyleSheet, 
+    Alert,ImageBackground,FlatList } from "react-native";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {useFocusEffect, useIsFocused, CommonActions } from '@react-navigation/native';
 import { RadioButton, TextInput, useTheme } from "react-native-paper";
-import { StackActions } from "@react-navigation/native";
+import EnvVariables from "../../../constant/EnvVariables";
 import RadioButtonRN from "radio-buttons-react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Dropdown } from "react-native-element-dropdown";
 import Colors from "../../../constant/Colors";
+import Color from "../../../constant/Colors";
 import ButtonComp from "../../../components/ButtonComp";
-import {
-  useFocusEffect,
-  useIsFocused,
-  useNavigation,
-} from "@react-navigation/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import moment from "moment";
 
-const data2 = [
-  { label: "0", value: "0" },
-  { label: "1/2", value: "0.5" },
-  { label: "1/4", value: "0.25" },
-  { label: "3/4", value: "0.75" },
-  { label: "2/3", value: "0.67" },
-  { label: "2/4", value: "0.5" },
-];
+const AgentJobDetail = (props) => {
+  const [userType, setUserType] = useState(undefined);
+  var order_id = props.route.params.order_request_id;
+  //var jobabc = props.route.params.jobabc;
+  console.log("ho jaaaa bhai=" + JSON.stringify(props));
+  console.log("order_id=" + order_id);
+ 
 
-const dataParsed = ["0.5", "0.25", "0.75", "0.67", "0.5"];
 
-const data3 = [
-  { label: "Motorised", value: "Motorised" },
-  { label: "Regular", value: "Regular" },
-];
+  //var measurnment = props.route.params.measurnment;
+  var order_id = props.route.params.order_id;
+  var order_request = props.route.params.order_request;
+  var date_of_visit = props.route.params.date_of_visit;
+  var S_T_V = props.route.params.S_T_V;
+  var Request_by_name = props.route.params.Request_by_name;
+  var contact_no = props.route.params.contact_no;
+  var visit_address = props.route.params.visit_address;
+  var cDate = props.route.params.cDate;
+  // measurement=jobabc.map((value)=>{if(value.order_request_id == order_id){
+  //  value.Measurement_details.map((values)=>{
+  //   return values
+  //  })
+  // }})
 
-const data4 = [
-  { label: "White", value: "White" },
-  { label: "Grey", value: "Grey" },
-  { label: "Green", value: "Green" },
-];
 
-const AddMeasurnment = (props) => {
-
-  useLayoutEffect(() => {
-    props.navigation.addListener("focus", () => {
-      // setScreenValue1(true)
-      setProduct("");
-
-      // getDetails()
-      console.log("inside first useEffect==" + props.route.params.boo);
-    });
-  }, [props.route.params.boo, product]);
-
-  const theme = useTheme();
-
+ 
+  const [jobDetails, setJobDetail] = useState(undefined);
+  const [jobabc, setJobabc] = useState([]);
+  const [dataload, setDataLoaded] = useState(false);
+  const [apiLoader, setApiLoader] = useState(true);
+  const [id, setId]=useState(undefined);
   const [selected, setSelected] = useState("");
   const [isFocus, setIsFocus] = useState(false);
   const [labelWidth, setLabelWidth] = useState("");
@@ -107,52 +90,11 @@ const AddMeasurnment = (props) => {
   const [inputWidthErrors, setInputWidthErrors] = useState([]);
   const [inputHeightErrors, setInputHeightErrors] = useState([]);
   const [inputCordErrors, setInputCordErrors] = useState([]);
+  const [screenValue, setScreenValue] = useState(false);
 
-  // console.log('new array='+JSON.stringify(newArray))
 
-  let today = new Date().toISOString().slice(0, 10);
-  console.log("today==" + today);
 
-  const data = [
-    {
-      label: "CM",
-      accessibilityLabel: "Your label",
-    },
-    {
-      label: "Inches",
-      accessibilityLabel: "Your label",
-    },
-    {
-      label: "Meter",
-      accessibilityLabel: "Your label",
-    },
-  ];
-
-  const data_control = [
-    {
-      label: "Left",
-      accessibilityLabel: "Your label",
-    },
-    {
-      label: "Right",
-      accessibilityLabel: "Your label",
-    },
-  ];
-
-  var order_id = props.route.params.order_id;
-  var order_request = props.route.params.order_request;
-  var date_of_visit = props.route.params.date_of_visit;
-  var S_T_V = props.route.params.S_T_V;
-  var Request_by_name = props.route.params.Request_by_name;
-  var contact_no = props.route.params.contact_no;
-  var visit_address = props.route.params.visit_address;
-  var cDate = props.route.params.created_date;
-  var customerId = props.route.params.customerId;
-  var created_date = props.route.params.created_date;
-
-  console.log("c date=" + cDate);
-
-  const [numInputs, setNumInputs] = useState(1);
+  const [numInputs, setNumInputs] = useState(0);
   const refInputs = useRef([product]);
   const refInputsStyle = useRef([style]);
   const refInputsColor = useRef([color]);
@@ -182,12 +124,138 @@ const AddMeasurnment = (props) => {
   const refInputsControl = useRef([control]);
   const refInputsCord = useRef([cord]);
 
-  const isFocused = useIsFocused();
 
-  const [screenValue, setScreenValue] = useState(false);
-  const [screenValue1, setScreenValue1] = useState(false);
 
-  const setInputValue = (index, value) => {
+  let today = new Date().toISOString().slice(0, 10);
+  console.log("today==" + today);
+
+  const data2 = [
+    { label: "0", value: "0" },
+    { label: "1/2", value: "0.5" },
+    { label: "1/4", value: "0.25" },
+    { label: "3/4", value: "0.75" },
+    { label: "2/3", value: "0.67" },
+    { label: "2/4", value: "0.5" },
+  ];
+  
+  const data = [
+    {
+      label: "CM",
+      accessibilityLabel: "Your label",
+    },
+    {
+      label: "Inches",
+      accessibilityLabel: "Your label",
+    },
+    {
+      label: "Meter",
+      accessibilityLabel: "Your label",
+    },
+  ];
+
+
+  // useEffect(() => {
+  //   //console.log('inside useEffect')
+  //   if (dataload == false) {
+  //     setApiLoader(true);
+  //     let webApiUrl =
+  //       EnvVariables.API_HOST +
+  //       `APIs/ViewJobs/ViewJobs.php?user_type=Admin&loggedIn_user_id=1`;
+  //     axios.get(webApiUrl).then((res) => {
+  //       setJobDetail(res.data.View_Jobs_list);
+  //       setDataLoaded(true);
+  //       setApiLoader(false);
+  //     });
+  //   }
+  // }, []);
+  //console.log('kya scene?')
+
+  const getDetails=async()=>{
+    setUserType(await AsyncStorage.getItem("user_type"));
+    setId(await AsyncStorage.getItem("user_id"));
+  }
+
+  useEffect(()=>{
+    getDetails()
+  },[id, getDetails])
+  console.log('id in job detail='+id)
+
+
+  useEffect(() => {
+    //setCustomerID(props.route.params.customerId)
+  //  props.navigation.addListener("focus", () => {
+
+        setApiLoader(true);
+
+        let webApiUrl =
+          EnvVariables.API_HOST + "APIs/ViewSingleJobDetails/ViewSingleJobDetails.php?loggedIn_user_id=482&order_request_id="+props.route.params.order_request_id;
+    
+           console.log("webApiUrlwebApiUrl", webApiUrl);
+           fetch(webApiUrl, {
+          method: "GET",
+          headers: new Headers({
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            // "Authorization": authtoken,
+          }),
+        })
+          .then((response) => response.json())
+          .then((responseJson) => {
+           console.log("singleUserDetails", responseJson);
+            if (responseJson.status == true) {
+                let reversed = responseJson;
+    
+               // console.log(reversed,'WWWWWWWWWWWWWWWW')
+               setJobabc(reversed.Output);
+               setApiLoader(false);
+            }
+          })
+          .catch((error) => console.log(error));
+
+  //  });
+  
+  }, []);
+
+  useEffect(() => {
+GetData()
+  },[])
+
+
+  const GetData = async() => {
+
+   let AgentId =  await AsyncStorage.getItem("user_id");
+   
+    setApiLoader(true);
+
+    let webApiUrl =
+      EnvVariables.API_HOST + "APIs/ViewSingleJobDetails/ViewSingleJobDetails.php?loggedIn_user_id="+AgentId+"&order_request_id="+props.route.params.order_request_id;
+
+       console.log("webApiUrlwebApiUrl", webApiUrl);
+       fetch(webApiUrl, {
+      method: "GET",
+      headers: new Headers({
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // "Authorization": authtoken,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+       console.log("singleUserDetails", responseJson);
+        if (responseJson.status == true) {
+            let reversed = responseJson;
+
+           // console.log(reversed,'WWWWWWWWWWWWWWWW')
+           setJobabc(reversed.Output);
+           setApiLoader(false);
+        }
+      })
+      .catch((error) => console.log(error));
+
+}
+
+
+const setInputValue = (index, value) => {
     // console.log("index=" + index + "value=" + value);
     const inputs = refInputs.current;
     inputs[index] = value;
@@ -348,7 +416,61 @@ const AddMeasurnment = (props) => {
     setControl(value);
   };
 
-  const addInput = () => {
+  let measurnment = [];
+  for (let j = 0; j < numInputs; j++) {
+    measurnment = refInputs.current.map((item, idx) => {
+      return {
+        ["order_request_id"]: order_id,
+        ["Measurement_type"]: refInputsSelected.current[idx],
+        ["product"]: item,
+        ["style"]: refInputsStyle.current[idx],
+        ["color"]: refInputsColor.current[idx],
+        ["location"]: refInputsLocation.current[idx],
+        ["quantity"]:
+          idx == 0 && refInputsQuantity.current[0].length == 0
+            ? ""
+            : refInputsQuantity.current[idx] || "",
+        ["width"]:
+          idx == 0 && refInputsWidth.current[0].length == 0
+            ? ""
+            : refInputsWidth.current[idx] || "",
+        ["width2"]: refInputsWidth2.current[idx],
+        // ["height"]:refInputsHeight.current[0].length==0?"":refInputsHeight.current[idx],
+        ["height"]:
+          idx == 0 && refInputsHeight.current[0].length == 0
+            ? ""
+            : refInputsHeight.current[idx] || "",
+        // ["height"]: refInputsHeight.current[idx],
+        ["height2"]: refInputsHeight2.current[idx],
+        ["lifting_systems"]: refInputLift.current[idx],
+        ["frame_color"]: refInputFrameColor.current[idx],
+        ["mounting"]: refInputsMounting.current[idx],
+        ["baseboards"]: refInputsBaseboards.current[idx],
+        ["side_channel"]: refInputsSideChannel.current[idx],
+        ["side_channel_color"]: refInputsSideChannelColor.current[idx],
+        ["bottom_channel"]: refInputsBottomChannel.current[idx],
+        ["bottom_channel_color"]: refInputsBottomChannelColor.current[idx],
+        ["bottom_rail"]: refInputsBottomRail.current[idx],
+        ["bottom_rail_color"]: refInputsBottomRailColor.current[idx],
+        ["valance"]: refInputsValance.current[idx],
+        ["valance_color"]: refInputsValanceColor.current[idx],
+        ["work_extra"]: refInputsExtraWork.current[idx],
+        ["remarks"]: refInputsRemarks.current[idx],
+        ["created_date"]: today,
+        // ["cord_details"]: refInputsCord.current[idx],
+        ["cord_details"]:
+          refInputsCord.current[0].length == 0
+            ? ""
+            : refInputsCord.current[idx],
+        ["control_left"]: control,
+        ["control_right"]: control,
+      };
+    });
+  }
+  console.log("measurnment=" + JSON.stringify(measurnment));
+
+
+const addInput = () => {
     refInputs.current.push("");
     refInputsStyle.current.push("");
     refInputsColor.current.push("");
@@ -444,7 +566,6 @@ const AddMeasurnment = (props) => {
 
     setNumInputs((value) => value - 1);
   };
-
   const inputs = [];
 
   for (let i = 0; i < numInputs; i++) {
@@ -827,80 +948,68 @@ const AddMeasurnment = (props) => {
     );
   }
 
-  let measurnment = [];
-  for (let j = 0; j < numInputs; j++) {
-    measurnment = refInputs.current.map((item, idx) => {
-      return {
-        ["order_request_id"]: order_id,
-        ["Measurement_type"]: refInputsSelected.current[idx],
-        ["product"]: item,
-        ["style"]: refInputsStyle.current[idx],
-        ["color"]: refInputsColor.current[idx],
-        ["location"]: refInputsLocation.current[idx],
-        ["quantity"]:
-          idx == 0 && refInputsQuantity.current[0].length == 0
-            ? ""
-            : refInputsQuantity.current[idx] || "",
-        ["width"]:
-          idx == 0 && refInputsWidth.current[0].length == 0
-            ? ""
-            : refInputsWidth.current[idx] || "",
-        ["width2"]: refInputsWidth2.current[idx],
-        // ["height"]:refInputsHeight.current[0].length==0?"":refInputsHeight.current[idx],
-        ["height"]:
-          idx == 0 && refInputsHeight.current[0].length == 0
-            ? ""
-            : refInputsHeight.current[idx] || "",
-        // ["height"]: refInputsHeight.current[idx],
-        ["height2"]: refInputsHeight2.current[idx],
-        ["lifting_systems"]: refInputLift.current[idx],
-        ["frame_color"]: refInputFrameColor.current[idx],
-        ["mounting"]: refInputsMounting.current[idx],
-        ["baseboards"]: refInputsBaseboards.current[idx],
-        ["side_channel"]: refInputsSideChannel.current[idx],
-        ["side_channel_color"]: refInputsSideChannelColor.current[idx],
-        ["bottom_channel"]: refInputsBottomChannel.current[idx],
-        ["bottom_channel_color"]: refInputsBottomChannelColor.current[idx],
-        ["bottom_rail"]: refInputsBottomRail.current[idx],
-        ["bottom_rail_color"]: refInputsBottomRailColor.current[idx],
-        ["valance"]: refInputsValance.current[idx],
-        ["valance_color"]: refInputsValanceColor.current[idx],
-        ["work_extra"]: refInputsExtraWork.current[idx],
-        ["remarks"]: refInputsRemarks.current[idx],
-        ["created_date"]: today,
-        // ["cord_details"]: refInputsCord.current[idx],
-        ["cord_details"]:
-          refInputsCord.current[0].length == 0
-            ? ""
-            : refInputsCord.current[idx],
-        ["control_left"]: control,
-        ["control_right"]: control,
-      };
-    });
-  }
 
+
+ 
+
+
+const renderItem = ({ item,index }) => {
+    return (
+      <View>
+        {/* Render job-related information */}
+        <View style={styles.individualBoxView}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>Assigned Job Details</Text>
+          <View style={{ justifyContent: 'flex-start', flexDirection: 'row' }}><Text style={styles.textInfo}>Service </Text><Text style={{ fontWeight: 'normal', textTransform: 'capitalize' }}> : {item.order_request_id}</Text></View>
+          <View style={styles.viewInfo}><Text style={styles.textInfo}>Date of visit </Text><Text style={{ fontWeight: 'normal' }}> : {item.date_of_visit}</Text></View>
+          <View style={styles.viewInfo}><Text style={styles.textInfo}>Time of visit </Text><Text style={{ fontWeight: 'normal' }}> : {item.S_T_V}</Text></View>
+          <View style={styles.viewInfo}><Text style={styles.textInfo}>Requested by </Text><Text style={{ fontWeight: 'normal' }}> : {item.assigned_by_user_details.first_name} {item.assigned_by_user_details.last_name}</Text></View>
+          <View style={styles.viewInfo}><Text style={styles.textInfo}>Contact No. </Text><Text style={{ fontWeight: 'normal' }}> : {item.contact_no}</Text></View>
+          <View style={styles.viewInfo}><Text style={styles.textInfo}>Visit Address </Text><Text style={{ fontWeight: 'normal' }}> : {item.visit_address}</Text></View>
+          <View style={{ justifyContent: 'flex-start', flexDirection: 'row', marginTop: 20, marginBottom: 20 }}><Text style={styles.textInfo}>Date of request </Text><Text style={{ fontWeight: 'normal' }}> : {item.created_date}</Text></View>
+        </View>
   
-  console.log("measurnment=" + JSON.stringify(measurnment));
+        {/* Render Measurement Data */}
+      
+         
+          {item.Measurement_Data.map((values,index) => (
+              <View style={styles.individualBoxView}>
+            <View key={values.measurement_id}>
+               
+                <Text style={styles.individualBoxTextHeading}>Added Measurement Details</Text>
+                      <View style={{justifyContent:'flex-start', flexDirection:'row'}}><Text style={styles.textInfo}>Record No. </Text><Text style={{fontWeight:'normal'}}>: {index + 1}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Measurement Type </Text><Text style={{fontWeight:'normal'}}>: {values.measurement_type}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Product Name </Text><Text style={{fontWeight:'normal'}}>: {values.product}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Location </Text><Text style={{fontWeight:'normal'}}>: {values.location}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Quantity </Text><Text style={{fontWeight:'normal'}}>: {values.quantity}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Width </Text><Text style={{fontWeight:'normal'}}>: {values.width}+{values.width2}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Height </Text><Text style={{fontWeight:'normal'}}>: {values.height}+{values.height2}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Cord Details </Text><Text style={{fontWeight:'normal'}}>: {values.cord_details}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Lifting System </Text><Text style={{fontWeight:'normal'}}>: {values.lifting_systems}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Frame Color </Text><Text style={{fontWeight:'normal'}}>: {values.frame_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Control </Text><Text style={{fontWeight:'normal'}}>: {values.control_left}</Text></View>
+                      
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Style </Text><Text style={{fontWeight:'normal'}}>: {values.style}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Color </Text><Text style={{fontWeight:'normal'}}>: {values.color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Mounting </Text><Text style={{fontWeight:'normal'}}>: {values.mounting}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Baseboards </Text><Text style={{fontWeight:'normal'}}>: {values.baseboards}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Side Channel </Text><Text style={{fontWeight:'normal'}}>: {values.side_channel}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Side Channel Color </Text><Text style={{fontWeight:'normal'}}>: {values.side_channel_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Channel </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_channel}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Channel Color </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_channel_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Rail </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_rail}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Rail Color </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_rail_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Valance </Text><Text style={{fontWeight:'normal'}}>: {values.valance}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Valance Color </Text><Text style={{fontWeight:'normal'}}>: {values.valance_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Work Extra </Text><Text style={{fontWeight:'normal'}}>: {values.work_extra}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Remarks </Text><Text style={{fontWeight:'normal'}}>: {values.remarks}</Text></View>
+                      <View style={{...styles.assignedJobView, marginBottom:20}}><Text style={styles.textInfo}>Created Date </Text><Text style={{fontWeight:'normal'}}>: {values.created_date}</Text></View>
+                    
+            </View>
+            </View>
+          ))}
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <View style={{ flex: 1, backgroundColor: "#c9d1fb" }}>
-        <ImageBackground
-          source={require("./../../../assets/background.png")}
-          resizeMode="cover"
-          style={styles.rootScreen}
-          imageStyle={styles.backgroundImage}
-        >
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={{ marginTop: 20, marginHorizontal: 10 }}>
-              {/* <View style={styles.individualBoxView}>
-           
-          </View> */}
-              {inputs}
-              <View
+{inputs}
+       <View
                 style={{
                   width: "40%",
                   alignSelf: "center",
@@ -908,7 +1017,7 @@ const AddMeasurnment = (props) => {
                   marginTop: 15,
                 }}
               >
-                {/* <ButtonComp title={"Remove"} onPress={removeInput(i)} /> */}
+               
                 <ButtonComp title={"+ Add more"} onPress={addInput} />
               </View>
               <View
@@ -988,7 +1097,7 @@ const AddMeasurnment = (props) => {
                     setInputHeightErrors([...inputHeightErrors]); // Update the state array
                     setInputCordErrors([...inputCordErrors]);
                     // setInputBorderColors(newInputBorderColors);
-                    if (isMissingFields) {
+                    if (!isMissingFields) {
                       Alert.alert("", "Kindly enter all important fields");
                     } else {
                       AsyncStorage.setItem("screenBoolean", "true");
@@ -1004,60 +1113,243 @@ const AddMeasurnment = (props) => {
                         Request_by_name: Request_by_name,
                         contact_no: contact_no,
                         visit_address: visit_address,
-                        // customerId: props.route.params.customerId,
-                        customerId: customerId,
+                         customerId: props.route.params.customerId,
+                       // customerId: customerId,
                         cDate: cDate,
-                        created_date: created_date,
+                     //   created_date: created_date,
                         quote_details: [],
                       });
                     }
                   }}
                 />
               </View>
-            </View>
-          </ScrollView>
-        </ImageBackground>
       </View>
-    </KeyboardAvoidingView>
+    );
+  };
+  
+
+
+  
+
+// console.log(jobabc,'jobabcjobabcjobabc')
+
+  const addMeasurnment=async(measurnment)=>{
+    // console.log('inside add measurement='+JSON.stringify(measurnment))
+    // let webApiUrl=EnvVariables.API_HOST+`APIs/AddMeasurement/AddMeasurement.php`;
+    // await axios.post(webApiUrl,measurnment).then(async(res)=>{
+    //   console.log('response in view measurnment='+JSON.stringify(res.data))
+      let apiUrl=EnvVariables.API_HOST+`APIs/CreateAQuote/CreateAQuote.php?orid=${order_id}&loggedIn_user_id=${id}`;
+      await axios.get(apiUrl).then((response)=>{
+        console.log('response of create quote='+JSON.stringify(response.data));
+        props.navigation.navigate('CreateQuote',{ 
+          order_id: order_id,
+          //measurnment: measurnment,
+          order_request: order_request,
+          date_of_visit: date_of_visit,
+          S_T_V: S_T_V,
+          Request_by_name: Request_by_name,
+          contact_no: contact_no,
+          visit_address: visit_address,
+          cDate: cDate,
+          createQuoteResponse:response.data.Measurement_Items,
+          Quotation_no:response.data.quote_data_list.Quotation_no,
+          quote_status:response.data.quote_data_list.quote_status,
+          Expiry_date:response.data.quote_data_list.Expiry_date,
+          // created_date:response.data.quote_price_data.created_date,
+          created_date:response.data.Measurement_Items[0].created_date,
+          // created_date:response.data.quote_price_data!=null?response.data.quote_price_data.created_date:null,
+          first_name:response.data.Customer_data.first_name,
+          email:response.data.Customer_data.email,
+          quote_id:response.data.quote_data_list.Quote_id,
+        })
+      }).catch((err)=>console.log(err))
+    // }).catch((err)=>console.log(err))
+   }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#c9d1fb' }}>
+      <ImageBackground
+        source={require("./../../../assets/background.png")}
+        resizeMode="cover"
+        style={styles.rootScreen}
+        imageStyle={styles.backgroundImage}
+      >
+      {/* {apiLoader ? (
+        <View>
+          <Text>Loader</Text>
+        </View>
+      ) : ( */}
+        <View showsVerticalScrollIndicator={false}>
+          <View style={{ marginTop: 20, marginHorizontal: 10 }}>
+            {/* <Text
+              style={{ fontWeight: "500", fontSize: 20, textAlign: "center" }}
+            >
+              Jobs
+            </Text> */}
+  <FlatList
+      data={jobabc}
+      keyExtractor={(item, index) => index.toString()}
+      renderItem={renderItem}
+    />
+            {/* view starts */}
+            {/* <View style={{ backgroundColor: "white", marginTop: 15 }}> */}
+
+            <View>
+              {/* individual boxes of job list starts */}
+              {/* {jobabc.map((value) => {
+                if (value.order_request_id == order_id) {
+                  return (
+                    <View style={styles.individualBoxView}>
+                      <Text style={{fontSize:18, fontWeight:'bold', marginBottom:15, textAlign:'center'}}>Assigned Job Details</Text>
+                      <View style={{justifyContent:'flex-start', flexDirection:'row'}}><Text style={styles.textInfo}>Service </Text><Text style={{fontWeight:'normal', textTransform:'capitalize'}}>: {value.order_request}</Text></View>
+                      <View style={styles.viewInfo}><Text style={styles.textInfo}>Date of visit </Text><Text style={{fontWeight:'normal'}}>: {value.date_of_visit}</Text></View>
+                      <View style={styles.viewInfo}><Text style={styles.textInfo}>Time of visit </Text><Text style={{fontWeight:'normal'}}>: {value.S_T_V}</Text></View>
+                      <View style={styles.viewInfo}><Text style={styles.textInfo}>Requested by </Text><Text style={{fontWeight:'normal'}}>: {value.Customer_name}</Text></View>
+                      <View style={styles.viewInfo}><Text style={styles.textInfo}>Contact No. </Text><Text style={{fontWeight:'normal'}}>: {value.contact_no}</Text></View>
+                      <View style={styles.viewInfo}><Text style={styles.textInfo}>Visit Address </Text><Text style={{fontWeight:'normal'}}>: {value.visit_address}</Text></View>
+                      <View style={{justifyContent:'flex-start', flexDirection:'row', marginTop:20, marginBottom:20}}><Text style={styles.textInfo}>Date of request </Text><Text style={{fontWeight:'normal'}}>: {value.created_date}</Text></View>
+                    
+                      {
+                        userType=='Agents'?
+                        <View>
+                          {
+                            console.log("value.Quotation_Details_Data.length = ",value.Quotation_Details_Data.length)
+                          }
+                          {
+                            value.Measurement_details.length==0?
+                            <View style={{marginHorizontal: 80, justifyContent:'flex-end', flex:1, marginBottom:20}}><ButtonComp title={"Add Measurnments"} onPress={()=>{AsyncStorage.setItem('screenBoolean', "false");
+                              props.navigation.dispatch(CommonActions.reset({
+                                index:0,
+                                routes:[
+                                  {
+                                    name:"AddMeasurnment",
+                                    params:{
+                                      order_id: order_id,
+                                      order_request: value.order_request,
+                                      date_of_visit: value.date_of_visit,
+                                      S_T_V: value.S_T_V,
+                                      Request_by_name: value.Request_by_name,
+                                      contact_no: value.contact_no,
+                                      visit_address: value.visit_address,
+                                      created_date: value.created_date,
+                                      boo: "JobDetail",
+                                      customerId:id
+                                    }
+                                  }
+                                ]
+                              }))
+                            
+                            }} /></View>
+                            :
+                            value.Quotation_Details_Data.length!==0?null:
+                            <View>
+                                <View style={{marginBottom:20, marginHorizontal:80}}><ButtonComp title={'Create Quote'} onPress={()=>addMeasurnment(value.Measurement_details)} /></View>
+                            </View>
+                          }
+                        </View>
+                        :
+                        <View>
+                          <View style={{marginHorizontal: 80, justifyContent:'flex-end', flex:1, marginBottom:20}}><ButtonComp title={"Add Measurnments"} onPress={()=>{AsyncStorage.setItem('screenBoolean', "false");
+                            props.navigation.dispatch(CommonActions.reset({
+                              index:0,
+                              routes:[
+                                {
+                                  name:"AddMeasurnment",
+                                  params:{
+                                    order_id: order_id,
+                                    order_request: value.order_request,
+                                    date_of_visit: value.date_of_visit,
+                                    S_T_V: value.S_T_V,
+                                    Request_by_name: value.Request_by_name,
+                                    contact_no: value.contact_no,
+                                    visit_address: value.visit_address,
+                                    created_date: value.created_date,
+                                    boo: "JobDetail",
+                                    customerId:id
+                                  }
+                                }
+                              ]
+                            }))
+                          
+                          }} /></View>
+                          <View style={{marginBottom:20, marginHorizontal:80}}><ButtonComp title={'Create Quote'} onPress={()=>addMeasurnment(value.Measurement_details)} /></View>
+                        </View>
+                      }
+                      </View>
+                  );
+                }
+              })} */}
+
+              {/* Need to add cord details In the API */}
+              {/* {jobabc.map((value, index)=>{
+                if (value.order_request_id == order_id) {
+                  return (
+                <View  key={index}>
+                  {value.Measurement_details.map((values, indexs)=>(
+                    <View style={styles.individualBoxView}>{console.log('inside job detail='+JSON.stringify(value.Measurement_details))}
+                      <Text style={styles.individualBoxTextHeading}>Added Measurement Details</Text>
+                      <View style={{justifyContent:'flex-start', flexDirection:'row'}}><Text style={styles.textInfo}>Record No. </Text><Text style={{fontWeight:'normal'}}>: {indexs+1}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Measurement Type </Text><Text style={{fontWeight:'normal'}}>: {values.measurement_type}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Product Name </Text><Text style={{fontWeight:'normal'}}>: {values.product}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Location </Text><Text style={{fontWeight:'normal'}}>: {values.location}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Quantity </Text><Text style={{fontWeight:'normal'}}>: {values.quantity}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Width </Text><Text style={{fontWeight:'normal'}}>: {values.width}+{values.width2}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Height </Text><Text style={{fontWeight:'normal'}}>: {values.height}+{values.height2}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Cord Details </Text><Text style={{fontWeight:'normal'}}>: {values.cord_details}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Lifting System </Text><Text style={{fontWeight:'normal'}}>: {values.lifting_systems}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Frame Color </Text><Text style={{fontWeight:'normal'}}>: {values.frame_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Control </Text><Text style={{fontWeight:'normal'}}>: {values.control_left}</Text></View>
+                      
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Style </Text><Text style={{fontWeight:'normal'}}>: {values.style}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Color </Text><Text style={{fontWeight:'normal'}}>: {values.color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Mounting </Text><Text style={{fontWeight:'normal'}}>: {values.mounting}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Baseboards </Text><Text style={{fontWeight:'normal'}}>: {values.baseboards}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Side Channel </Text><Text style={{fontWeight:'normal'}}>: {values.side_channel}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Side Channel Color </Text><Text style={{fontWeight:'normal'}}>: {values.side_channel_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Channel </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_channel}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Channel Color </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_channel_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Rail </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_rail}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Bottom Rail Color </Text><Text style={{fontWeight:'normal'}}>: {values.bottom_rail_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Valance </Text><Text style={{fontWeight:'normal'}}>: {values.valance}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Valance Color </Text><Text style={{fontWeight:'normal'}}>: {values.valance_color}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Work Extra </Text><Text style={{fontWeight:'normal'}}>: {values.work_extra}</Text></View>
+                      <View style={styles.assignedJobView}><Text style={styles.textInfo}>Remarks </Text><Text style={{fontWeight:'normal'}}>: {values.remarks}</Text></View>
+                      <View style={{...styles.assignedJobView, marginBottom:20}}><Text style={styles.textInfo}>Created Date </Text><Text style={{fontWeight:'normal'}}>: {values.created_date}</Text></View>
+                    </View>
+                  ))}
+                    
+                </View>
+              )}})} */}
+
+              {/* individual boxes of job list ends */}
+            </View>
+         
+            {/* view ends */}
+          </View>
+
+         
+        </View>
+        
+        </ImageBackground>
+      {/* )} */}
+    </View>
   );
 };
 
-const styles = StyleSheet.create({
+const styles=StyleSheet.create({
   individualBoxView: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     marginVertical: 10,
     paddingHorizontal: 10,
     borderRadius: 8,
     paddingTop: 10,
-    shadowOffset: { height: 6, width: 6 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowColor: "black",
-    //height: "100%",
+    shadowOffset:{height:6, width:6}, shadowOpacity:0.2, shadowRadius:4, shadowColor:'black'
+    //height:'100%'
   },
   flexDirectionText: {
     backgroundColor: "white",
     marginBottom: 10,
     width: "45%",
-  },
-  textInputStyle: {
-    backgroundColor: "white",
-    marginBottom: 10,
-  },
-  dropdown: {
-    borderColor: "gray",
-    //borderWidth: 0.5,
-    paddingHorizontal: 8,
-    width: "100%",
-    alignSelf: "center",
-    marginBottom: 10,
-    height: 57,
-    backgroundColor: Colors.boxBackground,
-    borderWidth: 1,
-    borderRadius: 6,
-  },
-  selectedTextStyle: {
-    fontSize: 16,
   },
   iconStyle: {
     width: 20,
@@ -1076,22 +1368,16 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 5.5,
   },
-  controlView: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginBottom: 20,
-  },
-  controlText: {
-    backgroundColor: "white",
-    width: "30%",
-    height: 40,
-  },
+  individualBoxTextHeading:{fontSize:18, fontWeight:'bold', marginBottom:15, textAlign:'center'},
+  assignedJobView:{justifyContent:'flex-start', flexDirection:'row', marginTop:20},
   rootScreen: {
     flex: 1,
   },
   backgroundImage: {
     opacity: 1,
   },
-});
+  viewInfo:{justifyContent:'flex-start', flexDirection:'row', marginTop:20},
+  textInfo:{fontWeight:'600',width: 160}
+})
 
-export default AddMeasurnment;
+export default AgentJobDetail;

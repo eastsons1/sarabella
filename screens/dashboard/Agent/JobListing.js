@@ -114,6 +114,23 @@ const JobListing = (props) => {
         style={styles.rootScreen}
         imageStyle={styles.backgroundImage}
       >
+
+{/* <TouchableOpacity 
+        style={{ width: '20%',height:'5%',justifyContent:"center",
+        alignSelf:"flex-end", marginTop: 15,backgroundColor: "#B4C1CF"  }}
+        onPress={() => props.navigation.navigate('CreateAgentJob',{
+        customerName : props.route.params.customerName,
+        customerId: props.route.params.customerId
+            })}
+        >
+            <Text style={{color:'#fff',alignSelf:"center"}}>
+                ADD JOB
+            </Text>
+        </TouchableOpacity>
+        <Text>
+        {props.route.params.customerName} {props.route.params.customerId}
+     
+        </Text> */}
       {apiLoader ? (
         <Splash style={{alignItems:'center', justifyContent:'center', flex:1}}>
         <Image

@@ -184,7 +184,9 @@ const CustomerList = (props) => {
         style={styles.rootScreen}
         imageStyle={styles.backgroundImage}
       >
-        <ScrollView style={{ flex: 1 }}>
+        <ScrollView style={{ flex: 1 }}
+       
+        >
           <View
             style={{
               flex: 1,
@@ -201,13 +203,13 @@ const CustomerList = (props) => {
                     flex: 1,
                   }}
                 >
-                  {/* <Image
+                  <Image
               source={require("../../../assets/logo.png")}
               resizeMode="contain"
               resizeMethod="scale"
               style={{ width: 160, height: 100 }}
-            /> */}
-                  {/* <Text style={{fontWeight:'bold'}}>Loading...</Text> */}
+            />
+                  <Text style={{fontWeight:'bold'}}>Loading...</Text>
                 </Splash>
               </View>
             ) : (
@@ -220,16 +222,17 @@ const CustomerList = (props) => {
                     borderRadius: 9,
                   }}
                   key={value.user_id}
-                  onPress={() => {
-                    getCustomerMeasurnmentDetails(
-                      value.user_id,
-                      value?.first_name + " " + value.last_name
-                    );
-                  }}
+
+                  onPress={() => props.navigation.navigate('AgentJobList',{
+                  //  onPress={() => props.navigation.navigate('JobListing',{
+                    customerId: value.user_id,
+                    customerName:value?.first_name + " " + value.last_name
+                  }) }
+                 
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={styles.textCustomerInfo}>
-                      Customer Name :{" "}
+                      Customer Name :{" "}{value.user_id}{" "}
                     </Text>
                     <Text style={styles.textCustomerInfo}>
                       {value?.first_name + " " + value.last_name}

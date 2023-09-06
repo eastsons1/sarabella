@@ -237,9 +237,11 @@ const CustomDrawerContent = (props) => {
                     }}
                     label={({}) => <Text>Order Status</Text>}
                   />
-                  <DrawerItem
+                <DrawerItem
                     label={({}) => <Text>Product Gallary</Text>}
-                    onPress={() => {}}
+                    onPress={() => {
+                      props.navigation.navigate("ProductGallary");
+                    }}
                   />
                 </View>
               ) : null}
@@ -298,9 +300,11 @@ const CustomDrawerContent = (props) => {
                     label={({}) => <Text>View All Orders</Text>}
                     onPress={() => props.navigation.navigate("ViewAllOrders")}
                   />
-                  <DrawerItem
+                 <DrawerItem
                     label={({}) => <Text>Product Gallary</Text>}
-                    onPress={() => {}}
+                    onPress={() => {
+                      props.navigation.navigate("ProductGallary");
+                    }}
                   />
                   <DrawerItem
                     label={({}) => (
@@ -625,9 +629,43 @@ const DrawerNavigator = (props) => {
                 ),
               };
             }
+            case "AgentJobList": {
+              return {
+                headerTitle: "Job List",
+                headerStyle: { backgroundColor: Colors.mainColor },
+                headerTintColor: "white",
+                // headerRight: () => (
+                //   <TouchableOpacity
+                //     onPress={() => {
+                //       navigation.navigate("CreateAgentJob");
+                //     }}
+                //   >
+                //     <View style={{ paddingRight: 10 }}>
+                //       <Text
+                //         style={{
+                //           color: "white",
+                //           fontSize: 18,
+                //           fontWeight: "600",
+                //         }}
+                //       >
+                       
+                //         Add Job
+                //       </Text>
+                //     </View>
+                //   </TouchableOpacity>
+                // ),
+              };
+            }
             case "CreateCustomer": {
               return {
                 headerTitle: "Add Customer",
+                headerStyle: { backgroundColor: Colors.mainColor },
+                headerTintColor: "white",
+              };
+            }
+            case "CreateAgentJob": {
+              return {
+                headerTitle: "Add Job",
                 headerStyle: { backgroundColor: Colors.mainColor },
                 headerTintColor: "white",
               };

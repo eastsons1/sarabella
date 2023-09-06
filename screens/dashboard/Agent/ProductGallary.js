@@ -152,7 +152,7 @@ const ProductGallary = (props) => {
                         style={{
                           width: 100,
                           height: 100,
-                          resizeMode: "center",
+                         // resizeMode: "center",
                         }}
                       />
                       <Text style={{ textAlign: "center" }}>
@@ -181,7 +181,7 @@ const ProductGallary = (props) => {
                     style={{
                       position: "absolute",
                       right: 10,
-                      top: 20,
+                      top: '5%',
                       width: 20,
                       height: 20,
                       borderRadius: 50 / 2,
@@ -208,7 +208,8 @@ const ProductGallary = (props) => {
                     style={{
                       height: "90%",
                       width: deviceWidth,
-                      marginTop: "10%",
+                      resizeMode:"cover",
+                      marginTop: "15%",
                     }}
                   />
                 </View>

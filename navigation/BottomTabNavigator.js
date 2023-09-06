@@ -46,6 +46,9 @@ import ViewReport from "../screens/dashboard/Admin/ViewReport";
 import Estimate from "../screens/dashboard/Admin/Estimate";
 import EstimateScheduleDetail from "../screens/dashboard/Admin/EstimateScheduleDetail";
 import ProductGallary from "../screens/dashboard/Agent/ProductGallary";
+import AgentJobList from "../screens/dashboard/Agent/AgentJobList";
+import CreateAgentJob from "../screens/dashboard/Agent/CreateAgentJob";
+import AgentJobDetail from "../screens/dashboard/Agent/AgentJobDetail";
 
 const BottomTab = createBottomTabNavigator();
 
@@ -235,6 +238,32 @@ const BottomTabNavigator = () => {
       <BottomTab.Screen
         name="ProductGallary"
         component={ProductGallary}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+       <BottomTab.Screen
+        name="AgentJobList"
+        component={AgentJobList}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+
+      <BottomTab.Screen
+        name="CreateAgentJob"
+        component={CreateAgentJob}
+        options={({ route }) => ({
+          tabBarButton: (props) => null,
+          headerShown: false,
+        })}
+      />
+
+<BottomTab.Screen
+        name="AgentJobDetail"
+        component={AgentJobDetail}
         options={({ route }) => ({
           tabBarButton: (props) => null,
           headerShown: false,

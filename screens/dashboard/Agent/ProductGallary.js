@@ -34,6 +34,7 @@ const ProductGallary = (props) => {
   const [id, setId] = useState(undefined);
   const [showEditModal, setShowEditModal] = useState(false);
   const [openCurrentImage, setOpenCurrentImage] = useState("");
+  const [ImageCode, setImageCode] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const isFocused = useIsFocused();
 
@@ -78,12 +79,13 @@ const ProductGallary = (props) => {
     setRefreshing(false);
   }, [id]);
 
-  const OpenImage = (imagepath) => {
+  const OpenImage = (imagepath,imageCode) => {
     setShowEditModal(true);
     setOpenCurrentImage(imagepath);
+    setImageCode(imageCode)
   };
 
-  console.log("job list=" + jobList, "DDDDDDDDDDDDDD");
+ // console.log("job list=" + jobList, "DDDDDDDDDDDDDD");
 
   if (jobList == undefined) {
     return (
@@ -102,7 +104,7 @@ const ProductGallary = (props) => {
     );
   }
 
-  console.log(jobList, "LLLLLLLLLLLLLLLLLLLLL");
+  //console.log(jobList, "LLLLLLLLLLLLLLLLLLLLL");
 
   return (
     <View style={{ flex: 1, backgroundColor: "#c9d1fb" }}>
@@ -140,7 +142,7 @@ const ProductGallary = (props) => {
                   numColumns={2}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      onPress={() => OpenImage(item.gallery_image)}
+                      onPress={() => OpenImage(item.gallery_image,item.product_code)}
                       style={styles.item}
                     >
                       <Image
@@ -176,14 +178,18 @@ const ProductGallary = (props) => {
             >
               <View style={styles.modalWrapper2}>
                 <View style={styles.modalWrapp}>
+                
+                  <View style={{justifyContent:"center"}}>
+
                   <TouchableOpacity
                     onPress={() => setShowEditModal(false)}
                     style={{
-                      position: "absolute",
+                     // position: "absolute",
                       right: 10,
                       top: '5%',
-                      width: 20,
-                      height: 20,
+                      alignSelf:"flex-end",
+                      width: 30,
+                      height: 30,
                       borderRadius: 50 / 2,
                       justifyContent: "center",
                       backgroundColor: "#000",
@@ -206,12 +212,16 @@ const ProductGallary = (props) => {
                         openCurrentImage,
                     }}
                     style={{
-                      height: "90%",
+                      height: "80%",
                       width: deviceWidth,
                       resizeMode:"cover",
                       marginTop: "15%",
                     }}
                   />
+                  <Text style={{textAlign:"center",padding:20,fontSize:16,fontWeight:'bold'}}>Code: {ImageCode}</Text>
+
+                  </View>
+                 
                 </View>
               </View>
             </Modal>
@@ -252,6 +262,7 @@ const styles = StyleSheet.create({
   },
   modalWrapper2: {
     // backgroundColor: "#00000040",
+    justifyContent:"center",
     backgroundColor: "#fff",
     alignItems: "center",
   },

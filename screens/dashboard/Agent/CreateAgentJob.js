@@ -206,14 +206,14 @@ const CreateAgentJob = (props) => {
               {
                 name: "AddMeasurnment",
                 params: {
-                  order_id: responseJson.order_request_id,
+                  order_id: responseJson.Output.order_request_id,
                   order_request: modelType,
                   date_of_visit: "",
                   S_T_V: "",
-                //   Request_by_name:
-                //     responseJson.Output[0].first_name +
-                //     " " +
-                //     responseJson.Output[0].last_name,
+                   Request_by_name:
+                     responseJson.Output.Customer_Data.first_name +
+                     " " +
+                     responseJson.Output.Customer_Data.last_name,
                 //   contact_no: responseJson.Output[0].mobile,
                 //   visit_address: responseJson.Output[0].address1,
                   created_date: today,

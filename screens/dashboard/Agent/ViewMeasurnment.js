@@ -402,6 +402,8 @@ const ViewMeasurnment = (props) => {
   //   }, [])
   // );
 
+  console.log(props.route.params.measurnment,'ALLLLLLLLLL')
+
   var measurnment = props.route.params.measurnment;
   var order_id = props.route.params.order_id;
   var order_request = props.route.params.order_request;

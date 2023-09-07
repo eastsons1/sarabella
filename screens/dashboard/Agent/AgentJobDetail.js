@@ -1,6 +1,7 @@
-import React, { useEffect, useRef,useState } from "react";
-import { View, Text, ScrollView,TouchableOpacity, StyleSheet, 
+import React, { useEffect, useRef,useState,useCallback } from "react";
+import { View, Text, ScrollView,TouchableOpacity, RefreshControl,StyleSheet, 
     Alert,ImageBackground,FlatList } from "react-native";
+   
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useFocusEffect, useIsFocused, CommonActions } from '@react-navigation/native';
@@ -14,23 +15,28 @@ import Color from "../../../constant/Colors";
 import ButtonComp from "../../../components/ButtonComp";
 
 const AgentJobDetail = (props) => {
+  const isFocused = useIsFocused();
+
+
   const [userType, setUserType] = useState(undefined);
-  var order_id = props.route.params.order_request_id;
+  var order_id = props.route.params.order_id;
+  var order_request = props.route.params.order_request;
   //var jobabc = props.route.params.jobabc;
   console.log("ho jaaaa bhai=" + JSON.stringify(props));
-  console.log("order_id=" + order_id);
+  console.log("order_id=" + order_id,order_request);
  
 
 
   //var measurnment = props.route.params.measurnment;
   var order_id = props.route.params.order_id;
-  var order_request = props.route.params.order_request;
   var date_of_visit = props.route.params.date_of_visit;
   var S_T_V = props.route.params.S_T_V;
   var Request_by_name = props.route.params.Request_by_name;
   var contact_no = props.route.params.contact_no;
   var visit_address = props.route.params.visit_address;
   var cDate = props.route.params.cDate;
+  var customerId = props.route.params.customerId;
+  var created_date = props.route.params.created_date;
   // measurement=jobabc.map((value)=>{if(value.order_request_id == order_id){
   //  value.Measurement_details.map((values)=>{
   //   return values
@@ -38,7 +44,7 @@ const AgentJobDetail = (props) => {
   // }})
 
 
- 
+  const [refreshing, setRefreshing] = useState(false);
   const [jobDetails, setJobDetail] = useState(undefined);
   const [jobabc, setJobabc] = useState([]);
   const [dataload, setDataLoaded] = useState(false);
@@ -95,7 +101,8 @@ const AgentJobDetail = (props) => {
 
 
   const [numInputs, setNumInputs] = useState(0);
-  const refInputs = useRef([product]);
+//  const refInputs = useRef([product]);
+  const refInputs = useRef([jobabc]);
   const refInputsStyle = useRef([style]);
   const refInputsColor = useRef([color]);
   const refInputsLocation = useRef([location]);
@@ -154,21 +161,7 @@ const AgentJobDetail = (props) => {
   ];
 
 
-  // useEffect(() => {
-  //   //console.log('inside useEffect')
-  //   if (dataload == false) {
-  //     setApiLoader(true);
-  //     let webApiUrl =
-  //       EnvVariables.API_HOST +
-  //       `APIs/ViewJobs/ViewJobs.php?user_type=Admin&loggedIn_user_id=1`;
-  //     axios.get(webApiUrl).then((res) => {
-  //       setJobDetail(res.data.View_Jobs_list);
-  //       setDataLoaded(true);
-  //       setApiLoader(false);
-  //     });
-  //   }
-  // }, []);
-  //console.log('kya scene?')
+
 
   const getDetails=async()=>{
     setUserType(await AsyncStorage.getItem("user_type"));
@@ -177,8 +170,8 @@ const AgentJobDetail = (props) => {
 
   useEffect(()=>{
     getDetails()
-  },[id, getDetails])
-  console.log('id in job detail='+id)
+  },[id, getDetails,props.route.params.order_request_id])
+  //console.log('id in job detail='+id)
 
 
   useEffect(() => {
@@ -216,9 +209,46 @@ const AgentJobDetail = (props) => {
   
   }, []);
 
+
+  const onRefresh = useCallback( async() => {
+   
+    setRefreshing(true);
+   
+        let webApiUrl =
+          EnvVariables.API_HOST + "APIs/ViewSingleJobDetails/ViewSingleJobDetails.php?loggedIn_user_id=482&order_request_id="+props.route.params.order_request_id;
+    
+           console.log("webApiUrlwebApiUrl", webApiUrl);
+           fetch(webApiUrl, {
+          method: "GET",
+          headers: new Headers({
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            // "Authorization": authtoken,
+          }),
+        })
+          .then((response) => response.json())
+          .then((responseJson) => {
+           console.log("singleUserDetails", responseJson);
+            if (responseJson.status == true) {
+                let reversed = responseJson;
+    
+               // console.log(reversed,'WWWWWWWWWWWWWWWW')
+               setJobabc(reversed.Output);
+            
+               setRefreshing(false);
+            }
+          })
+          .catch((error) => console.log(error));
+
+  }, []);
+  
+
   useEffect(() => {
-GetData()
-  },[])
+    if(isFocused){ 
+      GetData()
+  }
+
+  },[isFocused])
 
 
   const GetData = async() => {
@@ -416,58 +446,6 @@ const setInputValue = (index, value) => {
     setControl(value);
   };
 
-  let measurnment = [];
-  for (let j = 0; j < numInputs; j++) {
-    measurnment = refInputs.current.map((item, idx) => {
-      return {
-        ["order_request_id"]: order_id,
-        ["Measurement_type"]: refInputsSelected.current[idx],
-        ["product"]: item,
-        ["style"]: refInputsStyle.current[idx],
-        ["color"]: refInputsColor.current[idx],
-        ["location"]: refInputsLocation.current[idx],
-        ["quantity"]:
-          idx == 0 && refInputsQuantity.current[0].length == 0
-            ? ""
-            : refInputsQuantity.current[idx] || "",
-        ["width"]:
-          idx == 0 && refInputsWidth.current[0].length == 0
-            ? ""
-            : refInputsWidth.current[idx] || "",
-        ["width2"]: refInputsWidth2.current[idx],
-        // ["height"]:refInputsHeight.current[0].length==0?"":refInputsHeight.current[idx],
-        ["height"]:
-          idx == 0 && refInputsHeight.current[0].length == 0
-            ? ""
-            : refInputsHeight.current[idx] || "",
-        // ["height"]: refInputsHeight.current[idx],
-        ["height2"]: refInputsHeight2.current[idx],
-        ["lifting_systems"]: refInputLift.current[idx],
-        ["frame_color"]: refInputFrameColor.current[idx],
-        ["mounting"]: refInputsMounting.current[idx],
-        ["baseboards"]: refInputsBaseboards.current[idx],
-        ["side_channel"]: refInputsSideChannel.current[idx],
-        ["side_channel_color"]: refInputsSideChannelColor.current[idx],
-        ["bottom_channel"]: refInputsBottomChannel.current[idx],
-        ["bottom_channel_color"]: refInputsBottomChannelColor.current[idx],
-        ["bottom_rail"]: refInputsBottomRail.current[idx],
-        ["bottom_rail_color"]: refInputsBottomRailColor.current[idx],
-        ["valance"]: refInputsValance.current[idx],
-        ["valance_color"]: refInputsValanceColor.current[idx],
-        ["work_extra"]: refInputsExtraWork.current[idx],
-        ["remarks"]: refInputsRemarks.current[idx],
-        ["created_date"]: today,
-        // ["cord_details"]: refInputsCord.current[idx],
-        ["cord_details"]:
-          refInputsCord.current[0].length == 0
-            ? ""
-            : refInputsCord.current[idx],
-        ["control_left"]: control,
-        ["control_right"]: control,
-      };
-    });
-  }
-  console.log("measurnment=" + JSON.stringify(measurnment));
 
 
 const addInput = () => {
@@ -949,17 +927,67 @@ const addInput = () => {
   }
 
 
-
- 
-
+  let measurnment = [];
+  for (let j = 0; j < numInputs; j++) {
+    measurnment = refInputs.current.map((item, idx) => {
+      return {
+        ["order_request_id"]: order_id,
+        ["Measurement_type"]: refInputsSelected.current[idx],
+        ["product"]: item,
+        ["style"]: refInputsStyle.current[idx],
+        ["color"]: refInputsColor.current[idx],
+        ["location"]: refInputsLocation.current[idx],
+        ["quantity"]:
+          idx == 0 && refInputsQuantity.current[0].length == 0
+            ? ""
+            : refInputsQuantity.current[idx] || "",
+        ["width"]:
+          idx == 0 && refInputsWidth.current[0].length == 0
+            ? ""
+            : refInputsWidth.current[idx] || "",
+        ["width2"]: refInputsWidth2.current[idx],
+        // ["height"]:refInputsHeight.current[0].length==0?"":refInputsHeight.current[idx],
+        ["height"]:
+          idx == 0 && refInputsHeight.current[0].length == 0
+            ? ""
+            : refInputsHeight.current[idx] || "",
+        // ["height"]: refInputsHeight.current[idx],
+        ["height2"]: refInputsHeight2.current[idx],
+        ["lifting_systems"]: refInputLift.current[idx],
+        ["frame_color"]: refInputFrameColor.current[idx],
+        ["mounting"]: refInputsMounting.current[idx],
+        ["baseboards"]: refInputsBaseboards.current[idx],
+        ["side_channel"]: refInputsSideChannel.current[idx],
+        ["side_channel_color"]: refInputsSideChannelColor.current[idx],
+        ["bottom_channel"]: refInputsBottomChannel.current[idx],
+        ["bottom_channel_color"]: refInputsBottomChannelColor.current[idx],
+        ["bottom_rail"]: refInputsBottomRail.current[idx],
+        ["bottom_rail_color"]: refInputsBottomRailColor.current[idx],
+        ["valance"]: refInputsValance.current[idx],
+        ["valance_color"]: refInputsValanceColor.current[idx],
+        ["work_extra"]: refInputsExtraWork.current[idx],
+        ["remarks"]: refInputsRemarks.current[idx],
+        ["created_date"]: today,
+        // ["cord_details"]: refInputsCord.current[idx],
+        ["cord_details"]:
+          refInputsCord.current[0].length == 0
+            ? ""
+            : refInputsCord.current[idx],
+        ["control_left"]: control,
+        ["control_right"]: control,
+      };
+    });
+  }
+  console.log("measurnment=" + JSON.stringify(measurnment));
 
 const renderItem = ({ item,index }) => {
     return (
       <View>
         {/* Render job-related information */}
+        {/* {console.log(item,'PPPPPPPPPPPPPPPPP')} */}
         <View style={styles.individualBoxView}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 15, textAlign: 'center' }}>Assigned Job Details</Text>
-          <View style={{ justifyContent: 'flex-start', flexDirection: 'row' }}><Text style={styles.textInfo}>Service </Text><Text style={{ fontWeight: 'normal', textTransform: 'capitalize' }}> : {item.order_request_id}</Text></View>
+          <View style={{ justifyContent: 'flex-start', flexDirection: 'row' }}><Text style={styles.textInfo}>Service </Text><Text style={{ fontWeight: 'normal', textTransform: 'capitalize' }}> : {order_request}{item.order_request_id}</Text></View>
           <View style={styles.viewInfo}><Text style={styles.textInfo}>Date of visit </Text><Text style={{ fontWeight: 'normal' }}> : {item.date_of_visit}</Text></View>
           <View style={styles.viewInfo}><Text style={styles.textInfo}>Time of visit </Text><Text style={{ fontWeight: 'normal' }}> : {item.S_T_V}</Text></View>
           <View style={styles.viewInfo}><Text style={styles.textInfo}>Requested by </Text><Text style={{ fontWeight: 'normal' }}> : {item.assigned_by_user_details.first_name} {item.assigned_by_user_details.last_name}</Text></View>
@@ -971,7 +999,7 @@ const renderItem = ({ item,index }) => {
         {/* Render Measurement Data */}
       
          
-          {item.Measurement_Data.map((values,index) => (
+          {item.Measurement_Data && item.Measurement_Data.map((values,index) => (
               <View style={styles.individualBoxView}>
             <View key={values.measurement_id}>
                
@@ -1007,8 +1035,8 @@ const renderItem = ({ item,index }) => {
             </View>
             </View>
           ))}
-
-{inputs}
+{/* 
+            {inputs}
        <View
                 style={{
                   width: "40%",
@@ -1097,7 +1125,7 @@ const renderItem = ({ item,index }) => {
                     setInputHeightErrors([...inputHeightErrors]); // Update the state array
                     setInputCordErrors([...inputCordErrors]);
                     // setInputBorderColors(newInputBorderColors);
-                    if (!isMissingFields) {
+                    if (isMissingFields) {
                       Alert.alert("", "Kindly enter all important fields");
                     } else {
                       AsyncStorage.setItem("screenBoolean", "true");
@@ -1106,23 +1134,23 @@ const renderItem = ({ item,index }) => {
                       props.navigation.navigate("ViewMeasurnment", {
                         screenName: "AddMeasurnment",
                         order_id: order_id,
-                        measurnment: measurnment,
-                        order_request: order_request,
+                         measurnment: measurnment,
+                         order_request: order_request,
                         date_of_visit: date_of_visit,
                         S_T_V: S_T_V,
                         Request_by_name: Request_by_name,
                         contact_no: contact_no,
                         visit_address: visit_address,
-                         customerId: props.route.params.customerId,
+                       customerId: props.route.params.customerId,
                        // customerId: customerId,
-                        cDate: cDate,
-                     //   created_date: created_date,
+                       cDate: cDate,
+                       created_date: created_date,
                         quote_details: [],
                       });
                     }
                   }}
                 />
-              </View>
+              </View> */}
       </View>
     );
   };
@@ -1143,7 +1171,7 @@ const renderItem = ({ item,index }) => {
         console.log('response of create quote='+JSON.stringify(response.data));
         props.navigation.navigate('CreateQuote',{ 
           order_id: order_id,
-          //measurnment: measurnment,
+          measurnment: measurnment,
           order_request: order_request,
           date_of_visit: date_of_visit,
           S_T_V: S_T_V,
@@ -1187,6 +1215,10 @@ const renderItem = ({ item,index }) => {
               Jobs
             </Text> */}
   <FlatList
+
+refreshControl={
+  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+}
       data={jobabc}
       keyExtractor={(item, index) => index.toString()}
       renderItem={renderItem}

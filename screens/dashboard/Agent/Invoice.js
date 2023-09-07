@@ -160,7 +160,14 @@ const Invoice = (props) => {
                   <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Total:</Text><Text style={styles.valueCalculation}> ${abc}</Text></View>
                   <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Discount:</Text><Text style={styles.valueCalculation}>{(discount*100).toFixed()}%</Text></View>
                   <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Taxes:</Text><Text style={styles.valueCalculation}>{(taxex*100).toFixed()}%</Text></View>
-                  <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Grand Total:</Text><Text style={styles.valueCalculation}> ${(parseInt(abc)-(parseFloat(discount)*parseInt(abc)))+(parseFloat(taxex)* (parseInt(abc)-(parseFloat(discount)*parseInt(abc))))}</Text></View>
+                  {/* <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Grand Total:</Text><Text style={styles.valueCalculation}> ${(parseInt(abc)-(parseFloat(discount)*parseInt(abc)))+(parseFloat(taxex)* (parseInt(abc)-(parseFloat(discount)*parseInt(abc))))}</Text></View> */}
+                  <View style={styles.totalViewStyle}><Text style={styles.totalTextStyle}>Grand Total:</Text><Text style={styles.valueCalculation}> 
+      ${(parseInt(abc) - parseFloat(discount) * parseInt(abc) + parseFloat(taxex) * (parseInt(abc) - parseFloat(discount) * parseInt(abc))).toFixed(2)}
+                
+                  </Text></View>
+                  <Text style={styles.valueCalculation}>
+      {/* ${(parseInt(abc) - parseFloat(discount) * parseInt(abc) + parseFloat(taxex) * (parseInt(abc) - parseFloat(discount) * parseInt(abc))).toFixed(2)} */}
+    </Text>
                 </View>
               </View>
 

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import {
   View,
   Text,
+  RefreshControl,
   TouchableOpacity,
   StyleSheet,
   ImageBackground,
@@ -26,6 +27,7 @@ const AgentJobList = (props) => {
   const [userList, setUserList] = useState([]);
   const [apiLoader, setApiLoader] = useState(false);
   const [customerID, setCustomerID] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
 
   let IDD = props.route.params.customerId
   console.log(IDD,'BBBBBBBBBBBBBB')
@@ -73,6 +75,35 @@ const AgentJobList = (props) => {
 //     GetData()
 //   },[setUserList]);
 
+
+const onRefresh = useCallback( async() => {
+  setApiLoader(true);
+  setRefreshing(true);
+  let webApiUrl =
+    EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id="+IDD;
+
+  await fetch(webApiUrl, {
+    method: "GET",
+    headers: new Headers({
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      // "Authorization": authtoken,
+    }),
+  })
+    .then((response) => response.json())
+    .then((responseJson) => {
+     // console.log("singleUserDetails", responseJson);
+      if (responseJson.status == true) {
+          let reversed = responseJson;
+
+          //console.log(reversed,'WWWWWWWWWWWWWWWW')
+         setUserList(reversed);
+         setApiLoader(false);
+         setRefreshing(false);  
+      }
+    })
+    .catch((error) => console.log(error));
+}, []);
 
 const GetData = async() => {
     setApiLoader(true);
@@ -179,6 +210,9 @@ const GetData = async() => {
             ) : (
 
                 <FlatList
+                refreshControl={
+                  <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
                 data={ userList.Job_List}
               //  numColumns={2}
                 renderItem={({ item }) => (
@@ -193,6 +227,7 @@ const GetData = async() => {
 
                   onPress={() => props.navigation.navigate("AgentJobDetail", {
                     order_request_id: item?.Job_id,
+                     order_request: item.Job_Name,
                     // order_request: item.order_request,
                     // date_of_visit: item.date_of_visit,
                     // S_T_V: item.S_T_V,

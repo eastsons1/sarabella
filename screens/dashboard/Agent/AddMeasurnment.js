@@ -49,6 +49,8 @@ const data4 = [
 
 const AddMeasurnment = (props) => {
 
+  console.log(props,'propaaaaaaaaaa')
+
   useLayoutEffect(() => {
     props.navigation.addListener("focus", () => {
       // setScreenValue1(true)

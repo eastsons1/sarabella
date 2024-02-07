@@ -221,28 +221,28 @@ const CustomerList = (props) => {
                     padding: 10,
                     borderRadius: 9,
                   }}
-                  key={value.user_id}
+                  key={value?.user_id}
 
                   onPress={() => props.navigation.navigate('AgentJobList',{
                   //  onPress={() => props.navigation.navigate('JobListing',{
-                    customerId: value.user_id,
-                    customerName:value?.first_name + " " + value.last_name
+                    customerId: value?.user_id,
+                    customerName:value?.first_name + " " + value?.last_name
                   }) }
                  
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Text style={styles.textCustomerInfo}>
-                      Customer Name :{" "}{value.user_id}{" "}
+                      Customer Name :
                     </Text>
                     <Text style={styles.textCustomerInfo}>
-                      {value?.first_name + " " + value.last_name}
+                      {value?.first_name + " " + value?.last_name}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row", marginTop: 10 }}>
                     <Text style={styles.textCustomerInfo}>
                       Contact Number :{" "}
                     </Text>
-                    <Text style={styles.textCustomerInfo}>{value.mobile}</Text>
+                    <Text style={styles.textCustomerInfo}>{value?.mobile}</Text>
                   </View>
                 </TouchableOpacity>
               ))

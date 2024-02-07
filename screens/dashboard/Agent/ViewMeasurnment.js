@@ -6,6 +6,8 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
+  Alert,
+  RefreshControl
 } from "react-native";
 import axios from "axios";
 import { RadioButton, TextInput, useTheme } from "react-native-paper";
@@ -22,6 +24,7 @@ import EnvVariables from "../../../constant/EnvVariables";
 import Splash from "../../../components/Splash";
 import AddMeasurnment from "./AddMeasurnment";
 import { useNavigation } from "@react-navigation/native";
+import { measure } from "react-native-reanimated";
 
 // const navigation = useNavigation();
 const data2 = [
@@ -110,9 +113,27 @@ const ViewMeasurnment = (props) => {
   const [inputWidthErrors, setInputWidthErrors] = useState([]);
   const [inputHeightErrors, setInputHeightErrors] = useState([]);
   const [inputCordErrors, setInputCordErrors] = useState([]);
+  const [singleUser, setSingleUser] = useState([])
+  const [allMeasurementData, setAllMeasurementData] = useState([])
+  const [refreshing, setRefreshing] = useState(false);
 
-  // console.log('new array='+JSON.stringify(newArray))
+  useEffect(() => {
 
+      singleUser.forEach(function (obj) {
+        if (obj.Measurement_Data != null) {
+          // setRefreshing(true)
+          var measurementData = obj.Measurement_Data;
+          setAllMeasurementData(measurementData)
+          console.log(measurementData, 'JJJKKK'); // This will log the array for each object
+          // setRefreshing(false);
+
+        }
+      });
+    
+  }, [singleUser, refreshing])
+
+console.log(singleUser,'singleUser')
+  console.log(allMeasurementData, 'AllMeasure')
   let today = new Date().toISOString().slice(0, 10);
   console.log("today==" + today);
 
@@ -154,7 +175,7 @@ const ViewMeasurnment = (props) => {
   var created_date = props.route.params.created_date;
 
   console.log("c date=" + cDate);
-
+  console.log(order_id, 'order_id')
   const [numInputs, setNumInputs] = useState(0);
   const refInputs = useRef([product]);
   const refInputsStyle = useRef([style]);
@@ -402,7 +423,7 @@ const ViewMeasurnment = (props) => {
   //   }, [])
   // );
 
-  console.log(props.route.params.measurnment,'ALLLLLLLLLL')
+  console.log(props.route.params.measurnment, 'ALLLLLLLLLL')
 
   var measurnment = props.route.params.measurnment;
   var order_id = props.route.params.order_id;
@@ -415,8 +436,11 @@ const ViewMeasurnment = (props) => {
   var cDate = props.route.params.cDate;
   var customerId = props.route.params.customerId;
   var created_date = props.route.params.created_date;
-  console.log("created date in view measurement=" + cDate);
 
+
+  var newMeasurement = [...allMeasurementData, ...measurnment]
+  console.log(newMeasurement, 'SHUBH')
+  console.log("created date in view measurement=" + cDate);
   console.log("order request=" + order_request);
   console.log("measurnment=" + JSON.stringify(measurnment));
   console.log("user id=" + customerId);
@@ -437,8 +461,72 @@ const ViewMeasurnment = (props) => {
   //     setApiLoader(false)
   //   })
   //  }
+  const GetData = async () => {
+
+    let AgentId = await AsyncStorage.getItem("user_id");
+
+    setApiLoader(true);
+
+    let webApiUrl =
+      EnvVariables.API_HOST + "APIs/ViewSingleJobDetails/ViewSingleJobDetails.php?loggedIn_user_id=" + AgentId + "&order_request_id=" + order_id;
+
+    console.log("webApiUrlwebApiUrl", webApiUrl);
+    fetch(webApiUrl, {
+      method: "GET",
+      headers: new Headers({
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // "Authorization": authtoken,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log("singleUserDetailsVM", responseJson[0]?.Measurement_Data);
+        if (responseJson.status == true) {
+          let reversed = responseJson;
+
+          // console.log(reversed,'WWWWWWWWWWWWWWWW')
+          setSingleUser(reversed.Output);
+          setApiLoader(false);
+        }
+      })
+      .catch((error) => console.log(error));
+
+  }
+  const onRefresh = async () => {
+    let AgentId = await AsyncStorage.getItem("user_id");
+    setRefreshing(true)
+    setApiLoader(true);
+
+    let webApiUrl =
+      EnvVariables.API_HOST + "APIs/ViewSingleJobDetails/ViewSingleJobDetails.php?loggedIn_user_id=" + AgentId + "&order_request_id=" + order_id;
+
+    console.log("webApiUrlwebApiUrl", webApiUrl);
+    fetch(webApiUrl, {
+      method: "GET",
+      headers: new Headers({
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // "Authorization": authtoken,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log("singleUserDetailsVM", responseJson[0]?.Measurement_Data);
+        if (responseJson.status == true) {
+          let reversed = responseJson;
+
+          // console.log(reversed,'WWWWWWWWWWWWWWWW')
+          setSingleUser(reversed.Output);
+          setApiLoader(false);
+          setRefreshing(false)
+        }
+      })
+      .catch((error) => console.log(error));
+  }
 
   const addMeasurnment = async () => {
+
     AsyncStorage.setItem("screenBoolean", "false");
     setApiLoader(true);
     let webApiUrl =
@@ -459,6 +547,7 @@ const ViewMeasurnment = (props) => {
             console.log(
               "quote id in create quote=" + JSON.stringify(response.data)
             );
+
             //props.route.params.cleanup();
             props.navigation.navigate("CreateQuote", {
               order_id: order_id,
@@ -478,6 +567,7 @@ const ViewMeasurnment = (props) => {
               created_date: created_date,
               // created_date:response.data.quote_price_data!=null? response.data.quote_price_data.created_date:null, /// write condition for null
               first_name: response.data.Customer_data.first_name,
+              last_name: response.data.Customer_data.last_name,
               quote_id: response.data.quote_data_list.Quote_id,
               email: response.data.Customer_data.email,
             });
@@ -586,6 +676,10 @@ const ViewMeasurnment = (props) => {
 
     setNumInputs((value) => value - 1);
   };
+  useEffect(() => {
+    GetData()
+
+  }, [])
 
   const inputs = [];
 
@@ -610,9 +704,9 @@ const ViewMeasurnment = (props) => {
             value={refInputsSelected.current[i]}
             // selectedBtn={(e) => setSelected(e.label)}
             selectedBtn={(e) => setInputSelected(i, e.label)}
-            // icon={
-            //   <Icon name="checkmark-circle-outline" size={25} color="#2c9dd1" />
-            // }
+          // icon={
+          //   <Icon name="checkmark-circle-outline" size={25} color="#2c9dd1" />
+          // }
           />
         </View>
 
@@ -1042,7 +1136,11 @@ const ViewMeasurnment = (props) => {
             <Text style={{ fontWeight: "bold" }}>Loading...</Text>
           </Splash>
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
             <View style={{ marginTop: 20, marginHorizontal: 10 }}>
               <Text
                 style={{
@@ -1123,67 +1221,74 @@ const ViewMeasurnment = (props) => {
                 )}
               </View>
               {/* Assigned job details end */}
+              {/* All Measurement DAta */}
 
-              {measurnment.map((value, index) => (
-                <View style={styles.individualBoxView} key={index}>
-                  <Text style={styles.individualBoxTextHeading}>
-                    Added Measurement Details
-                    {console.log(value, "AAAAAAAAAAAAAAAAAAAAA")}
-                  </Text>
-                  <View
-                    style={{
-                      justifyContent: "flex-start",
-                      flexDirection: "row",
-                    }}
-                  >
-                    <Text style={styles.textHead}>Record No. </Text>
-                    <Text style={{ fontWeight: "normal" }}>: {index + 1}</Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Measurement Type </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.measurement_type}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Product Name </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.product}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Location </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.location}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Quantity </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.quantity}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Width </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.width}+
-                      {value.width2.length == 0 ? "0" : value.width2}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Height </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.height}+
-                      {value.height2.length == 0 ? "0" : value.height2}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Cord Details </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.cord_details}
-                    </Text>
-                  </View>
-                  {/* <View style={styles.assignedJobView}><Text style={styles.textHead}>Lifting System </Text><Text style={{fontWeight:'normal'}}>: {value.lifting_systems}</Text></View>
+              {/* ENd All */}
+
+
+
+              {
+                allMeasurementData != null ?
+                  newMeasurement.map((value, index) => (
+                    <View style={styles.individualBoxView} key={index}>
+                      <Text style={styles.individualBoxTextHeading}>
+                        Added Measurement Details
+                        {console.log(value, "AAAAAAAAAAAAAAAAAAAAA")}
+                      </Text>
+                      <View
+                        style={{
+                          justifyContent: "flex-start",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <Text style={styles.textHead}>Record No. </Text>
+                        <Text style={{ fontWeight: "normal" }}>: {index + 1}</Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Measurement Type </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.measurement_type}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Product Name </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.product}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Location </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.location}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Quantity </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.quantity}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Width </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.width}+
+                          {value.width2.length == 0 ? "0" : value.width2}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Height </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.height}+
+                          {value.height2.length == 0 ? "0" : value.height2}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Cord Details </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.cord_details}
+                        </Text>
+                      </View>
+                      {/* <View style={styles.assignedJobView}><Text style={styles.textHead}>Lifting System </Text><Text style={{fontWeight:'normal'}}>: {value.lifting_systems}</Text></View>
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Frame Color </Text><Text style={{fontWeight:'normal'}}>: {value.frame_color}</Text></View>
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Control </Text><Text style={{fontWeight:'normal'}}>: {value.control_left}</Text></View>
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Style </Text><Text style={{fontWeight:'normal'}}>: {value.style}</Text></View>
@@ -1198,26 +1303,122 @@ const ViewMeasurnment = (props) => {
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Bottom Rail Color </Text><Text style={{fontWeight:'normal'}}>: {value.bottom_rail_color}</Text></View>
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Valance </Text><Text style={{fontWeight:'normal'}}>: {value.valance}</Text></View>
                     <View style={styles.assignedJobView}><Text style={styles.textHead}>Valance Color </Text><Text style={{fontWeight:'normal'}}>: {value.valance_color}</Text></View> */}
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Work Extra </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.work_extra}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Remarks </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.remarks}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Created Date </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.created_date}
-                    </Text>
-                  </View>
-                </View>
-              ))}
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Work Extra </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.work_extra}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Remarks </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.remarks}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Created Date </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.created_date}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+                  :
+                  measurnment.map((value, index) => (
+                    <View style={styles.individualBoxView} key={index}>
+                      <Text style={styles.individualBoxTextHeading}>
+                        Added Measurement Details
+                        {console.log(value, "AAAAAAAAAAAAAAAAAAAAA")}
+                      </Text>
+                      <View
+                        style={{
+                          justifyContent: "flex-start",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <Text style={styles.textHead}>Record No. </Text>
+                        <Text style={{ fontWeight: "normal" }}>: {index + 1}</Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Measurement Type </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.measurement_type}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Product Name </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.product}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Location </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.location}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Quantity </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.quantity}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Width </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.width}+
+                          {value.width2.length == 0 ? "0" : value.width2}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Height </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.height}+
+                          {value.height2.length == 0 ? "0" : value.height2}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Cord Details </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.cord_details}
+                        </Text>
+                      </View>
+                      {/* <View style={styles.assignedJobView}><Text style={styles.textHead}>Lifting System </Text><Text style={{fontWeight:'normal'}}>: {value.lifting_systems}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Frame Color </Text><Text style={{fontWeight:'normal'}}>: {value.frame_color}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Control </Text><Text style={{fontWeight:'normal'}}>: {value.control_left}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Style </Text><Text style={{fontWeight:'normal'}}>: {value.style}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Color </Text><Text style={{fontWeight:'normal'}}>: {value.color}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Mounting </Text><Text style={{fontWeight:'normal'}}>: {value.mounting}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Baseboards </Text><Text style={{fontWeight:'normal'}}>: {value.baseboards}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Side Channel </Text><Text style={{fontWeight:'normal'}}>: {value.side_channel}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Side Channel Color </Text><Text style={{fontWeight:'normal'}}>: {value.side_channel_color}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Bottom Channel </Text><Text style={{fontWeight:'normal'}}>: {value.bottom_channel}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Bottom Channel Color </Text><Text style={{fontWeight:'normal'}}>: {value.bottom_channel_color}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Bottom Rail </Text><Text style={{fontWeight:'normal'}}>: {value.bottom_rail}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Bottom Rail Color </Text><Text style={{fontWeight:'normal'}}>: {value.bottom_rail_color}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Valance </Text><Text style={{fontWeight:'normal'}}>: {value.valance}</Text></View>
+                    <View style={styles.assignedJobView}><Text style={styles.textHead}>Valance Color </Text><Text style={{fontWeight:'normal'}}>: {value.valance_color}</Text></View> */}
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Work Extra </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.work_extra}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Remarks </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.remarks}
+                        </Text>
+                      </View>
+                      <View style={styles.assignedJobView}>
+                        <Text style={styles.textHead}>Created Date </Text>
+                        <Text style={{ fontWeight: "normal" }}>
+                          : {value.created_date}
+                        </Text>
+                      </View>
+                    </View>
+                  ))
+              }
 
               {userType == "Agents" ? (
                 <View>
@@ -1246,6 +1447,7 @@ const ViewMeasurnment = (props) => {
                               created_date: created_date,
                               m: measurnment,
                               customerId: customerId,
+                              AllMeasurementData: allMeasurementData,
                               boo: "ViewMeasurement",
                             });
                           }}

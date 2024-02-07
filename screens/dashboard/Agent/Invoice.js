@@ -31,7 +31,7 @@ const Invoice = (props) => {
   var taxex=props.route.params.taxex;
   var priceTotal=props.route.params.priceTotal;
   var grandTotalWithWExtra=props.route.params.grandTotal
-
+console.log(props.route.params,'props.route.params')
   console.log('quotation number='+Quotation_no)
   console.log('quotation status='+quote_status)
   console.log('expiry date='+Expiry_date)
@@ -122,9 +122,13 @@ const Invoice = (props) => {
       <View style={{ marginTop: 20, marginHorizontal: 10 }}>
           {/* <Text style={{ fontWeight: "500", fontSize: 20, textAlign: "center" }}>Create Quote</Text> */}
           <View style={styles.individualBoxView}>
-            <View style={{ justifyContent: "flex-start", flexDirection: "row" }}><Text style={styles.textInfo}>Customer Name </Text><Text style={{ fontWeight: "normal" }}>: {Request_by_name}</Text></View>
+            <View style={{ justifyContent: "flex-start", flexDirection: "row" }}><Text style={styles.textInfo}>Customer Name </Text><Text style={{ fontWeight: "normal" }}>: {first_name}</Text></View>
             <View style={styles.assignedJobView}><Text style={styles.textInfo}>Contact No. </Text><Text style={{fontWeight:'normal'}}>: {contact_no}</Text></View>
-            <View style={styles.assignedJobView}><Text style={styles.textInfo}>Address </Text><Text style={{fontWeight:'normal'}}>: {visit_address}</Text></View>
+            {
+              visit_address ?
+              <View style={styles.assignedJobView}><Text style={styles.textInfo}>Address </Text><Text style={{fontWeight:'normal'}}>: {visit_address}</Text></View>
+              : null
+            }
             <View style={styles.assignedJobView}><Text style={styles.textInfo}>Service Name </Text><Text style={{fontWeight:'normal', textTransform:'capitalize'}}>: {order_request}</Text></View>
             {/* <View style={styles.assignedJobView}><Text style={{fontWeight:'600'}}>Expiry: </Text><Text style={{fontWeight:'normal'}}>{order_request}</Text></View>
             <View style={styles.assignedJobView}><Text style={{fontWeight:'600'}}>Deposit: </Text><Text style={{fontWeight:'normal'}}>{order_request}</Text></View> */}

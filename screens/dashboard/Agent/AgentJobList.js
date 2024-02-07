@@ -1,4 +1,4 @@
-import React, { useEffect, useState,useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   ImageBackground,
   FlatList,
   Image,
+  Alert
 } from "react-native";
 import { useFocusEffect, useIsFocused } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -28,88 +29,119 @@ const AgentJobList = (props) => {
   const [apiLoader, setApiLoader] = useState(false);
   const [customerID, setCustomerID] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-
+  const [viaJoblist, setViaJoblist] = useState(false)
   let IDD = props.route.params.customerId
-  console.log(IDD,'BBBBBBBBBBBBBB')
+  console.log(IDD, 'BBBBBBBBBBBBBB')
+  console.log(userList, 'userList')
+
 
   useEffect(() => {
-    //setCustomerID(props.route.params.customerId)
-  //  props.navigation.addListener("focus", () => {
-
-        setApiLoader(true);
-
-        let webApiUrl =
-          EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id="+IDD;
+    // Alert.alert('hello world')
+    setRefreshing(true);
     
-           console.log("webApiUrlwebApiUrl", webApiUrl);
-           fetch(webApiUrl, {
-          method: "GET",
-          headers: new Headers({
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            // "Authorization": authtoken,
-          }),
-        })
-          .then((response) => response.json())
-          .then((responseJson) => {
-           console.log("singleUserDetails", responseJson);
-            if (responseJson.status == true) {
-                let reversed = responseJson;
-    
-               // console.log(reversed,'WWWWWWWWWWWWWWWW')
-               setUserList(reversed);
-               setApiLoader(false);
-            }
-          })
-          .catch((error) => console.log(error));
+    let webApiUrl =
+      EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id=" + IDD;
 
-  //  });
-  
-  }, []);
-
-
-
-//console.log(customerID,'LLLLLLLLLLLLLLL')
- 
-//   useEffect( () => {
-//     GetData()
-//   },[setUserList]);
-
-
-const onRefresh = useCallback( async() => {
-  setApiLoader(true);
-  setRefreshing(true);
-  let webApiUrl =
-    EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id="+IDD;
-
-  await fetch(webApiUrl, {
-    method: "GET",
-    headers: new Headers({
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      // "Authorization": authtoken,
-    }),
-  })
-    .then((response) => response.json())
-    .then((responseJson) => {
-     // console.log("singleUserDetails", responseJson);
-      if (responseJson.status == true) {
+    console.log("webApiUrlwebApiUrl", webApiUrl);
+    fetch(webApiUrl, {
+      method: "GET",
+      headers: new Headers({
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // "Authorization": authtoken,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log("singleUserDetails", responseJson);
+        if (responseJson.status == true) {
           let reversed = responseJson;
 
-          //console.log(reversed,'WWWWWWWWWWWWWWWW')
-         setUserList(reversed);
-         setApiLoader(false);
-         setRefreshing(false);  
-      }
-    })
-    .catch((error) => console.log(error));
-}, []);
+          // console.log(reversed,'WWWWWWWWWWWWWWWW')
+          setUserList(reversed);
+          setApiLoader(false);
+          setRefreshing(false);
 
-const GetData = async() => {
+        }
+      })
+      .catch((error) => console.log(error));
+
+  }, [IDD]);
+
+
+
+  //console.log(customerID,'LLLLLLLLLLLLLLL')
+
+  //   useEffect( () => {
+  //     GetData()
+  //   },[setUserList]);
+
+
+  const onRefresh = useCallback(async () => {
+    setApiLoader(true);
+    setRefreshing(true);
+
+
+    let webApiUrl =
+      EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id=" + IDD;
+
+    console.log("webApiUrlwebApiUrl", webApiUrl);
+    fetch(webApiUrl, {
+      method: "GET",
+      headers: new Headers({
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        // "Authorization": authtoken,
+      }),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        console.log("singleUserDetails", responseJson);
+        if (responseJson.status == true) {
+          let reversed = responseJson;
+
+          // console.log(reversed,'WWWWWWWWWWWWWWWW')
+          setUserList(reversed);
+          setApiLoader(false);
+          setRefreshing(false);
+
+        }
+      })
+      .catch((error) => console.log(error));
+
+
+
+    // let webApiUrl =
+    //   EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id="+IDD;
+
+    // await fetch(webApiUrl, {
+    //   method: "GET",
+    //   headers: new Headers({
+    //     Accept: "application/json",
+    //     "Content-Type": "application/json",
+    //     // "Authorization": authtoken,
+    //   }),
+    // })
+    //   .then((response) => response.json())
+    //   .then((responseJson) => {
+    //    // console.log("singleUserDetails", responseJson);
+    //     if (responseJson.status == true) {
+    //         let reversed = responseJson;
+
+    //         //console.log(reversed,'WWWWWWWWWWWWWWWW')
+    //        setUserList(reversed);
+    //        setApiLoader(false);
+    //        setRefreshing(false);  
+    //     }
+    //   })
+    //   .catch((error) => console.log(error));
+  }, []);
+
+  const GetData = async () => {
     setApiLoader(true);
 
     let webApiUrl =
-      EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id="+IDD;
+      EnvVariables.API_HOST + "APIs/ViewAllJobs/ViewAllJobs.php?user_type=Agents&customer_id=" + IDD;
 
     await fetch(webApiUrl, {
       method: "GET",
@@ -121,22 +153,22 @@ const GetData = async() => {
     })
       .then((response) => response.json())
       .then((responseJson) => {
-       // console.log("singleUserDetails", responseJson);
+        // console.log("singleUserDetails", responseJson);
         if (responseJson.status == true) {
-            let reversed = responseJson;
+          let reversed = responseJson;
 
-            //console.log(reversed,'WWWWWWWWWWWWWWWW')
-           setUserList(reversed);
-           setApiLoader(false);
+          //console.log(reversed,'WWWWWWWWWWWWWWWW')
+          setUserList(reversed);
+          setApiLoader(false);
         }
       })
       .catch((error) => console.log(error));
-}
+  }
 
 
 
 
- 
+
 
   if (userList == []) {
     return (
@@ -158,24 +190,26 @@ const GetData = async() => {
   }
 
   return (
-     <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <ImageBackground
         source={require("./../../../assets/background.png")}
         resizeMode="cover"
         style={styles.rootScreen}
         imageStyle={styles.backgroundImage}
       >
-        <TouchableOpacity 
-        style={{ width: '20%',height:'5%',justifyContent:"center",
-        alignSelf:"flex-end", marginTop: 5,  }}
-        onPress={() => props.navigation.navigate('CreateAgentJob',{
-        customerName : props.route.params.customerName,
-        customerId: props.route.params.customerId
-            })}
+        <TouchableOpacity
+          style={{
+            width: '20%', height: '5%', justifyContent: "center",
+            alignSelf: "flex-end", marginTop: 5,
+          }}
+          onPress={() => props.navigation.navigate('CreateAgentJob', {
+            customerName: props.route.params.customerName,
+            customerId: props.route.params.customerId
+          })}
         >
-            <Text style={{color:'#fff',alignSelf:"center",fontSize:18,fontWeight:'bold'}}>
-                Add Job
-            </Text>
+          <Text style={{ color: '#fff', alignSelf: "center", fontSize: 18, fontWeight: 'bold' }}>
+            Add Job
+          </Text>
         </TouchableOpacity>
         {/* <Text>
         {props.route.params.customerName} {props.route.params.customerId}
@@ -199,44 +233,75 @@ const GetData = async() => {
                   }}
                 >
                   <Image
-              source={require("../../../assets/logo.png")}
-              resizeMode="contain"
-              resizeMethod="scale"
-              style={{ width: 160, height: 100 }}
-            /> 
-                   <Text style={{fontWeight:'bold'}}>Loading...</Text>
+                    source={require("../../../assets/logo.png")}
+                    resizeMode="contain"
+                    resizeMethod="scale"
+                    style={{ width: 160, height: 100 }}
+                  />
+                  <Text style={{ fontWeight: 'bold' }}>Loading...</Text>
                 </Splash>
               </View>
             ) : (
 
-                <FlatList
+              <FlatList
                 refreshControl={
                   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
                 }
-                data={ userList.Job_List}
-              //  numColumns={2}
+                refreshing={refreshing}
+                data={userList.Job_List}
+                //  numColumns={2}
                 renderItem={({ item }) => (
-                    <TouchableOpacity
-                  style={{
-                    backgroundColor: "#FFFFFF",
-                    margin: 10,
-                    padding: 10,
-                    borderRadius: 9,
-                  }}
-                  key={item?.Job_id}
+                  <TouchableOpacity
+                    style={{
+                      backgroundColor: "#FFFFFF",
+                      margin: 10,
+                      padding: 10,
+                      borderRadius: 9,
+                    }}
+                    key={item?.Job_id}
 
-                  onPress={() => props.navigation.navigate("AgentJobDetail", {
-                    order_request_id: item?.Job_id,
-                     order_request: item.Job_Name,
-                    // order_request: item.order_request,
-                    // date_of_visit: item.date_of_visit,
-                    // S_T_V: item.S_T_V,
-                    // Request_by_name: item.Customer_name,
-                    // contact_no: item.contact_no,
-                    // visit_address: item.visit_address,
-                    // created_date: item.created_date,
-                    // jobabc: jobList,
-                  }) }
+                    onPress={() => {
+                      setViaJoblist(true);
+
+                      props.navigation.navigate("AgentJobDetail", {
+                        order_request_id: item?.order_request_id,
+                        order_request: item.order_request,
+                        date_of_visit: item.date_of_visit,
+                        S_T_V: item.S_T_V,
+                        Request_by_name: item.Job_Name,
+                        contact_no: item.contact_no,
+                        visit_address: item.visit_address,
+                        created_date: item.created_date,
+                        customerId: props.route.params.customerId,
+                        boo: "AddMeasurnment",
+                        viaJoblist: viaJoblist
+                      })
+                      // props.navigation.dispatch(
+                      //   CommonActions.reset({
+                      //     index: 0,
+                      //     routes: [
+                      //       {
+                      //         name: "AddMeasurnment",
+                      //         params: {
+                      //           order_id: item?.order_request_id,
+                      //           order_request: item.order_request,
+                      //           // measurnment: measurnment,
+                      //           date_of_visit: item.date_of_visit,
+                      //           S_T_V: item.S_T_V,
+                      //           Request_by_name: item.Job_Name,
+                      //           contact_no: item.contact_no,
+                      //           visit_address: item.visit_address,
+                      //           created_date: item.created_date,
+                      //           customerId: props.route.params.customerId,
+                      //           boo: "AddMeasurnment",
+                      //           viaJoblist: viaJoblist
+                      //         },
+                      //       },
+                      //     ],
+                      //   })
+                      // );
+
+                    }}
                   /* The below is used for show add measurement */
                   // onPress={() => {
                   //   getCustomerMeasurnmentDetails(
@@ -244,64 +309,64 @@ const GetData = async() => {
                   //     value?.first_name + " " + value.last_name
                   //   );
                   // }}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={styles.textCustomerInfo}>
-                      Job Name :{" "}
-                    </Text>
-                    <Text style={styles.textCustomerInfo}>
-                      {item.Job_Name }{item.Job_id}
-                    </Text>
-                  </View>
-                  <View style={{ flexDirection: "row", marginTop: 10 }}>
-                    <Text style={styles.textCustomerInfo}>
-                      Create At :{" "}
-                    </Text>
-                    <Text style={styles.textCustomerInfo}>{item?.Created_Date}</Text>
-                  </View>
-                </TouchableOpacity>
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      <Text style={styles.textCustomerInfo}>
+                        Job Name :{" "}
+                      </Text>
+                      <Text style={styles.textCustomerInfo}>
+                        {item.order_request}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row", marginTop: 10 }}>
+                      <Text style={styles.textCustomerInfo}>
+                        Create At :{item.created_date}
+                      </Text>
+                      <Text style={styles.textCustomerInfo}>{item?.Created_Date}</Text>
+                    </View>
+                  </TouchableOpacity>
                 )}
                 keyExtractor={(item) => item.Job_id}
               />
-            //   userList?.map((value) => (
-            //     <TouchableOpacity
-            //       style={{
-            //         backgroundColor: "#FFFFFF",
-            //         margin: 10,
-            //         padding: 10,
-            //         borderRadius: 9,
-            //       }}
-            //       key={value.Job_id}
+              //   userList?.map((value) => (
+              //     <TouchableOpacity
+              //       style={{
+              //         backgroundColor: "#FFFFFF",
+              //         margin: 10,
+              //         padding: 10,
+              //         borderRadius: 9,
+              //       }}
+              //       key={value.Job_id}
 
-            //       onPress={() => {} }
-            //       /* The below is used for show add measurement */
-            //       // onPress={() => {
-            //       //   getCustomerMeasurnmentDetails(
-            //       //     value.user_id,
-            //       //     value?.first_name + " " + value.last_name
-            //       //   );
-            //       // }}
-            //     >
-            //       <View style={{ flexDirection: "row" }}>
-            //         <Text style={styles.textCustomerInfo}>
-            //           JOB Name :{" "}
-            //         </Text>
-            //         <Text style={styles.textCustomerInfo}>
-            //           {value?.Job_Name }
-            //         </Text>
-            //       </View>
-            //       <View style={{ flexDirection: "row", marginTop: 10 }}>
-            //         <Text style={styles.textCustomerInfo}>
-            //           Create At :{" "}
-            //         </Text>
-            //         <Text style={styles.textCustomerInfo}>{value.Created_Date}</Text>
-            //       </View>
-            //     </TouchableOpacity>
-            //   ))
+              //       onPress={() => {} }
+              //       /* The below is used for show add measurement */
+              //       // onPress={() => {
+              //       //   getCustomerMeasurnmentDetails(
+              //       //     value.user_id,
+              //       //     value?.first_name + " " + value.last_name
+              //       //   );
+              //       // }}
+              //     >
+              //       <View style={{ flexDirection: "row" }}>
+              //         <Text style={styles.textCustomerInfo}>
+              //           JOB Name :{" "}
+              //         </Text>
+              //         <Text style={styles.textCustomerInfo}>
+              //           {value?.Job_Name }
+              //         </Text>
+              //       </View>
+              //       <View style={{ flexDirection: "row", marginTop: 10 }}>
+              //         <Text style={styles.textCustomerInfo}>
+              //           Create At :{" "}
+              //         </Text>
+              //         <Text style={styles.textCustomerInfo}>{value.Created_Date}</Text>
+              //       </View>
+              //     </TouchableOpacity>
+              //   ))
             )}
-             
+
           </View>
-        
+
         </View>
       </ImageBackground>
     </View>

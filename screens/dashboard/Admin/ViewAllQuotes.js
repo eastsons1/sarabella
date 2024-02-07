@@ -23,7 +23,7 @@ const ViewAllQuotes = (props) => {
   const getDetails=async()=>{
     setId(await AsyncStorage.getItem("user_id"));
   }
-
+console.log(orderList,'orderList')
   useEffect(() => {
     //if (dataload == false) {
       getDetails()

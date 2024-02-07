@@ -32,6 +32,7 @@ const CreateQuote = (props) => {
   var Expiry_date = props.route.params.Expiry_date;
   var created_date = props.route.params.created_date;
   var first_name = props.route.params.first_name;
+  var last_name = props.route.params.last_name;
   var email = props.route.params.email;
   // var quote_id=props.route.params.quote_id;
 
@@ -158,7 +159,7 @@ const CreateQuote = (props) => {
                 >
                   <Text style={styles.textHead}>Customer Name </Text>
                   <Text style={{ fontWeight: "normal" }}>
-                    : {Request_by_name}
+                    : {first_name} {last_name}
                   </Text>
                 </View>
                 <View style={styles.assignedJobView}>
@@ -268,17 +269,18 @@ const CreateQuote = (props) => {
                     </Text>
                   </View>
                   <View style={styles.assignedJobView}>
-                    <Text style={styles.textHead}>Height </Text>
-                    <Text style={{ fontWeight: "normal" }}>
-                      : {value.height} {value.measurement_type}
-                    </Text>
-                  </View>
-                  <View style={styles.assignedJobView}>
                     <Text style={styles.textHead}>Width </Text>
                     <Text style={{ fontWeight: "normal" }}>
                       : {value.width} {value.measurement_type}
                     </Text>
                   </View>
+                  <View style={styles.assignedJobView}>
+                    <Text style={styles.textHead}>Height </Text>
+                    <Text style={{ fontWeight: "normal" }}>
+                      : {value.height} {value.measurement_type}
+                    </Text>
+                  </View>
+                  
                   {console.log("index=" + index)}
                   <View style={styles.assignedJobView}>
                     <Text

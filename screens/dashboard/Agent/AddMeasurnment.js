@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect,useCallback } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,10 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  FlatList,
+  Image,
+  RefreshControl
 } from "react-native";
 import { RadioButton, TextInput, useTheme } from "react-native-paper";
 import { StackActions } from "@react-navigation/native";
@@ -24,7 +28,8 @@ import {
 } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
-
+import EnvVariables from "../../../constant/EnvVariables";
+import axios from "axios";
 const data2 = [
   { label: "0", value: "0" },
   { label: "1/2", value: "0.5" },
@@ -48,8 +53,14 @@ const data4 = [
 ];
 
 const AddMeasurnment = (props) => {
-
-  console.log(props,'propaaaaaaaaaa')
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [openCurrentImage, setOpenCurrentImage] = useState("");
+  const [imageIndex, setImageIndex] = useState();
+  console.log(props, 'propaaaaaaaaaa')
+  const [jobList, setJobList] = useState([]);
+  const [dataload, setDataLoaded] = useState(false);
+  const [apiLoader, setApiLoader] = useState(true);
+  const [id, setId] = useState(undefined);
 
   useLayoutEffect(() => {
     props.navigation.addListener("focus", () => {
@@ -60,16 +71,21 @@ const AddMeasurnment = (props) => {
       console.log("inside first useEffect==" + props.route.params.boo);
     });
   }, [props.route.params.boo, product]);
-
+  console.log(props.route.params, 'props.route.params')
   const theme = useTheme();
 
   const [selected, setSelected] = useState("");
+
   const [isFocus, setIsFocus] = useState(false);
   const [labelWidth, setLabelWidth] = useState("");
+
   const [isFocusWidth, setIsFocusWidth] = useState(false);
   const [labelHeight, setLabelHeight] = useState("");
+
   const [valueWidth, setValueWidth] = useState("");
+
   const [valuHeight, setValueHeight] = useState("");
+
   const [valueLift, setValueLift] = useState("");
   const [valueFrame, setValueFrame] = useState("");
   const [isFocusHeight, setIsFocusHeight] = useState(false);
@@ -79,13 +95,19 @@ const AddMeasurnment = (props) => {
   const [isFocusFrameColor, setIsFocusFrameColor] = useState(false);
   const [control, setControl] = useState("");
   const [product, setProduct] = useState("");
+
   const [style, setStyle] = useState("");
   const [color, setColor] = useState("");
   const [location, setLocation] = useState("");
+
   const [quantity, setQuantity] = useState([]);
+
   const [cord, setCord] = useState([]);
+
   const [width, setWidth] = useState([]);
+
   const [height, setHeight] = useState([]);
+
   const [mounting, setMounting] = useState("");
   const [baseboards, setBaseBoards] = useState("");
   const [side_channel, setSide_channel] = useState("");
@@ -97,7 +119,9 @@ const AddMeasurnment = (props) => {
   const [valance, setValance] = useState("");
   const [valance_color, setValance_color] = useState("");
   const [work_extra, setWork_extra] = useState("");
+
   const [remarks, setRemarks] = useState("");
+
   const [newArray, setNewArray] = useState([]);
   const [newArrayWidth, setNewArrayWidth] = useState([]);
   const [newArrayLift, setNewArrayLift] = useState([]);
@@ -109,8 +133,12 @@ const AddMeasurnment = (props) => {
   const [inputWidthErrors, setInputWidthErrors] = useState([]);
   const [inputHeightErrors, setInputHeightErrors] = useState([]);
   const [inputCordErrors, setInputCordErrors] = useState([]);
+  const [imageErrors, setImageErrors] = useState([]);
+
+  const [refreshing, setRefreshing] = useState(false);
 
   // console.log('new array='+JSON.stringify(newArray))
+
 
   let today = new Date().toISOString().slice(0, 10);
   console.log("today==" + today);
@@ -151,11 +179,13 @@ const AddMeasurnment = (props) => {
   var cDate = props.route.params.created_date;
   var customerId = props.route.params.customerId;
   var created_date = props.route.params.created_date;
-
+  var AllMeasurementData = props.route.params.AllMeasurementData
+  console.log(AllMeasurementData, 'AllMeasurementData')
   console.log("c date=" + cDate);
 
   const [numInputs, setNumInputs] = useState(1);
   const refInputs = useRef([product]);
+  const refImage = useRef([openCurrentImage]);
   const refInputsStyle = useRef([style]);
   const refInputsColor = useRef([color]);
   const refInputsLocation = useRef([location]);
@@ -188,9 +218,64 @@ const AddMeasurnment = (props) => {
 
   const [screenValue, setScreenValue] = useState(false);
   const [screenValue1, setScreenValue1] = useState(false);
+  const OpenImage = (index,value) => {
 
+    const image = refImage.current;
+    image[index] = value;
+    setOpenCurrentImage(value);
+    setShowEditModal(false);
+
+  };
+
+  const OpenModal = (index) => {
+
+    
+    setShowEditModal(true);
+    setImageIndex(index)
+
+  };
+  const getDetails = async () => {
+    setId(await AsyncStorage.getItem("user_id"));
+  };
+
+  useEffect(async () => {
+    console.log("getJobsData called in jobListing screen");
+    getDetails();
+    setApiLoader(true);
+    let webApiUrl =
+      EnvVariables.API_HOST + `APIs/ViewProductImages/ViewProductImages.php`;
+    console.log("webapiurl in agent job list=" + webApiUrl);
+    axios.get(webApiUrl).then((res) => {
+      console.log("response in agents=" + JSON.stringify(res.data));
+      const reversed = res.data;
+
+      setJobList(reversed);
+      setDataLoaded(true);
+      setApiLoader(false);
+    });
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+
+    setRefreshing(true);
+    props.navigation.addListener("focus", () => {
+      // setScreenValue1(true)
+      setProduct("");
+
+      // getDetails()
+      setRefreshing(false);
+      console.log("inside first useEffect==" + props.route.params.boo);
+    });
+
+  }, []);
+
+
+
+
+  // FOR ALL MEAS DATA
   const setInputValue = (index, value) => {
     // console.log("index=" + index + "value=" + value);
+    console.log(value, 'INPUTTTTIII')
     const inputs = refInputs.current;
     inputs[index] = value;
     setProduct(value);
@@ -343,12 +428,6 @@ const AddMeasurnment = (props) => {
     setSelected(value);
   };
 
-  const setInputControl = (index, value) => {
-    refInputsControl.current[index];
-    const inputsCurrent = refInputsControl.current;
-    inputsCurrent[index] = value;
-    setControl(value);
-  };
 
   const addInput = () => {
     refInputs.current.push("");
@@ -390,6 +469,7 @@ const AddMeasurnment = (props) => {
     refInputsStyle.current.splice(i, 1)[0];
     refInputsColor.current.splice(i, 1)[0];
     refInputsLocation.current.splice(i, 1)[0];
+    refImage.current.splice(i, 1)[0];
 
     const updatedInputsQuantity = [...refInputsQuantity.current];
     updatedInputsQuantity.splice(i, 1);
@@ -470,9 +550,9 @@ const AddMeasurnment = (props) => {
             value={refInputsSelected.current[i]}
             // selectedBtn={(e) => setSelected(e.label)}
             selectedBtn={(e) => setInputSelected(i, e.label)}
-            // icon={
-            //   <Icon name="checkmark-circle-outline" size={25} color="#2c9dd1" />
-            // }
+          // icon={
+          //   <Icon name="checkmark-circle-outline" size={25} color="#2c9dd1" />
+          // }
           />
         </View>
 
@@ -485,14 +565,40 @@ const AddMeasurnment = (props) => {
           error={inputErrors[i] || false}
         />
 
-        <TextInput
-          mode="outlined"
-          onChangeText={(value) => setInputValueLocation(i, value)}
-          value={refInputsLocation.current[i]}
-          style={styles.textInputStyle}
-          label="Enter Location*"
-          error={inputLocationErrors[i] || false}
-        />
+        <View style={{ flexDirection: 'row' }}>
+          <TextInput
+            mode='outlined'
+            onChangeText={(value) => setInputValueLocation(i, value)}
+            value={refInputsLocation.current[i]}
+            style={{ width: '80%', backgroundColor: '#fff', borderWidth: 0 }}
+            label="Enter Location*"
+            error={inputLocationErrors[i] || false}
+          />
+          <TouchableOpacity onPress={() => {OpenModal(i) }} style={{ borderWidth: imageErrors[i] || false ?2: 1, borderColor: imageErrors[i] || false && !refImage.current[i] ? 'red':'gray', borderRadius: 5, width: '20%', justifyContent: 'center', height: 50, alignItems: 'center', marginTop: 6 }}>
+            {
+              refImage.current[i] ?
+                <Image
+                  source={{
+                    uri:
+                      "https://sarabella.ca/backend/product_gallery/" +
+                      refImage.current[i],
+                  }}
+                  style={{
+                    width: 30,
+                    height: 30,
+                    // resizeMode: "center",
+                  }}
+
+                />
+                :
+                <Icon name="images" size={21} />
+
+            }
+
+          </TouchableOpacity>
+
+        </View>
+
         <TextInput
           mode="outlined"
           onChangeText={(value) => setInputValueQuantity(i, value)}
@@ -829,6 +935,9 @@ const AddMeasurnment = (props) => {
     );
   }
 
+
+
+
   let measurnment = [];
   for (let j = 0; j < numInputs; j++) {
     measurnment = refInputs.current.map((item, idx) => {
@@ -836,6 +945,7 @@ const AddMeasurnment = (props) => {
         ["order_request_id"]: order_id,
         ["Measurement_type"]: refInputsSelected.current[idx],
         ["product"]: item,
+        ["product_image"]: refImage.current[idx],
         ["style"]: refInputsStyle.current[idx],
         ["color"]: refInputsColor.current[idx],
         ["location"]: refInputsLocation.current[idx],
@@ -881,7 +991,7 @@ const AddMeasurnment = (props) => {
     });
   }
 
-  
+
   console.log("measurnment=" + JSON.stringify(measurnment));
 
   return (
@@ -896,11 +1006,15 @@ const AddMeasurnment = (props) => {
           style={styles.rootScreen}
           imageStyle={styles.backgroundImage}
         >
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false}  refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                      }>
             <View style={{ marginTop: 20, marginHorizontal: 10 }}>
               {/* <View style={styles.individualBoxView}>
            
           </View> */}
+
+
               {inputs}
               <View
                 style={{
@@ -929,7 +1043,8 @@ const AddMeasurnment = (props) => {
                         !refInputsLocation.current[k] ||
                         !refInputsQuantity.current[k] ||
                         !refInputsWidth.current[k] ||
-                        !refInputsHeight.current[k]
+                        !refInputsHeight.current[k] ||
+                        !refImage.current[k]
                       ) {
                         isMissingFields = true; // set flag to true if any field is missing
                         // newInputBorderColors[k] = 'red';
@@ -973,6 +1088,11 @@ const AddMeasurnment = (props) => {
                         } else {
                           inputCordErrors[k] = !refInputsCord.current[k];
                         }
+                        if (k == 0 && refImage.current[0].length == 0) {
+                          imageErrors[k] = true;
+                        } else {
+                          imageErrors[k] = !refImage.current[k];
+                        }
                       } else {
                         inputErrors[k] = false;
                         inputLocationErrors[k] = false; // Reset error state if the field is valid
@@ -980,6 +1100,7 @@ const AddMeasurnment = (props) => {
                         inputWidthErrors[k] = false; // Reset error state if the field is valid
                         inputHeightErrors[k] = false; // Reset error state if the field is valid
                         inputCordErrors[k] = false;
+                        imageErrors[k] = false
                         // newInputBorderColors[k] = undefined; // Reset borderColor if the field is valid
                       }
                     }
@@ -989,6 +1110,7 @@ const AddMeasurnment = (props) => {
                     setInputWidthErrors([...inputWidthErrors]); // Update the state array
                     setInputHeightErrors([...inputHeightErrors]); // Update the state array
                     setInputCordErrors([...inputCordErrors]);
+                    setImageErrors([...imageErrors])
                     // setInputBorderColors(newInputBorderColors);
                     if (isMissingFields) {
                       Alert.alert("", "Kindly enter all important fields");
@@ -1017,6 +1139,76 @@ const AddMeasurnment = (props) => {
                 />
               </View>
             </View>
+            <Modal
+              animationType="slide"
+              // transparent={true}
+              visible={showEditModal}
+              onRequestClose={() => {
+                setShowEditModal(false);
+              }}
+            >
+              <View style={styles.modalWrapper2}>
+                <View style={styles.modalWrapp}>
+
+                  <View style={{ justifyContent: "center" }}>
+
+                    {/* <TouchableOpacity
+                      onPress={() => setShowEditModal(false)}
+                      style={{
+                        // position: "absolute",
+                        right: 10,
+                        top: '5%',
+                        alignSelf: "flex-end",
+                        width: 30,
+                        height: 30,
+                        borderRadius: 50 / 2,
+                        justifyContent: "center",
+                        backgroundColor: "red",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          color: "#fff",
+                          fontSize: 14,
+                        }}
+                      >
+                        X
+                      </Text>
+                    </TouchableOpacity> */}
+                    <FlatList
+                      data={jobList.Produc_Listt}
+                      numColumns={2}
+                     
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          onPress={() => OpenImage( imageIndex,item.gallery_image)}
+                          style={styles.item}
+                        >
+                          <Image
+                            source={{
+                              uri:
+                                "https://sarabella.ca/backend/product_gallery/" +
+                                item.gallery_image,
+                            }}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              // resizeMode: "center",
+                            }}
+                          />
+                          {/* <Text style={{ textAlign: "center" }}>
+                            Product Code {item.product_code}
+                          </Text> */}
+                        </TouchableOpacity>
+                      )}
+                      keyExtractor={(item) => item.id}
+                    />
+                  </View>
+
+                </View>
+              </View>
+            </Modal>
           </ScrollView>
         </ImageBackground>
       </View>
@@ -1093,6 +1285,22 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     opacity: 1,
+  },
+  modalWrapper2: {
+    // backgroundColor: "#00000040",
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    alignItems: "center",
+  },
+  item: {
+    // flex: 1,
+    margin: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
 });
 

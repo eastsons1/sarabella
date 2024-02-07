@@ -384,7 +384,7 @@ const CustomDrawerContent = (props) => {
                     }}
                   />
                   <DrawerItem
-                    label={({}) => <Text>View Quotesqq</Text>}
+                    label={({}) => <Text>View Quotes</Text>}
                     onPress={() => {
                       props.navigation.navigate("ViewAllQuotes");
                     }}

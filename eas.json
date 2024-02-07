@@ -39,7 +39,13 @@
       }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "info@sarabella.ca",
+        "ascAppId": "1631157537",
+        "appleTeamId": "8UUV9RRZ93"
+      }
+    }
   }
 }
 
